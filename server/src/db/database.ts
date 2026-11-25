@@ -1,4 +1,3 @@
-import { DatabaseSync } from 'node:sqlite';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -8,9 +7,22 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const isVercel = Boolean(process.env.VERCEL);
-const bundledDataDir = path.resolve(__dirname, '../../data');
-const bundledDbPath = path.join(bundledDataDir, 'hriday_banquet.db');
 
+function resolveBundledDbPath(): string {
+  const candidates = [
+    path.resolve(__dirname, '../../data/hriday_banquet.db'),
+    path.resolve(process.cwd(), 'data/hriday_banquet.db'),
+    path.resolve(process.cwd(), 'server/data/hriday_banquet.db'),
+  ];
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+  return candidates[0];
+}
+
+const bundledDbPath = resolveBundledDbPath();
 let dbFilePath = bundledDbPath;
 
 if (isVercel) {
@@ -20,18 +32,127 @@ if (isVercel) {
   }
   dbFilePath = tmpDbPath;
 } else {
-  if (!fs.existsSync(bundledDataDir)) {
-    fs.mkdirSync(bundledDataDir, { recursive: true });
+  const localDataDir = path.dirname(bundledDbPath);
+  if (!fs.existsSync(localDataDir)) {
+    fs.mkdirSync(localDataDir, { recursive: true });
   }
 }
 
-export const sqliteDb = new DatabaseSync(dbFilePath);
+export interface PreparedStatementLike {
+  run: (...params: any[]) => any;
+  get: (...params: any[]) => any;
+  all: (...params: any[]) => any[];
+}
 
-// Enable foreign keys and WAL mode for reliability
-sqliteDb.exec(`
-  PRAGMA journal_mode = WAL;
-  PRAGMA foreign_keys = ON;
-`);
+export interface SqliteDbLike {
+  exec: (sql: string) => void;
+  prepare: (sql: string) => PreparedStatementLike;
+}
+
+let activeDb: SqliteDbLike | null = null;
+export let activeDbEngine: 'node:sqlite' | 'sql.js' | 'uninitialized' = 'uninitialized';
+
+function normalizeParams(params: any[]): any[] {
+  return params.map((p) => (p === undefined ? null : p));
+}
+
+export async function initDatabaseEngine(): Promise<'node:sqlite' | 'sql.js'> {
+  if (activeDb && activeDbEngine !== 'uninitialized') {
+    return activeDbEngine;
+  }
+
+  // Prefer native node:sqlite locally on Node 22.5+/24; on Vercel fall back cleanly to pure WASM sql.js
+  if (!isVercel) {
+    try {
+      const { DatabaseSync } = await import('node:sqlite');
+      const nativeDb = new DatabaseSync(dbFilePath);
+      nativeDb.exec('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
+      activeDb = nativeDb as unknown as SqliteDbLike;
+      activeDbEngine = 'node:sqlite';
+      return activeDbEngine;
+    } catch (err) {
+      console.warn('⚠️ node:sqlite unavailable, falling back to sql.js:', err);
+    }
+  }
+
+  const sqlJsModule = await import('sql.js/dist/sql-wasm-inline.js');
+  const initSqlJs = (sqlJsModule.default || sqlJsModule) as any;
+  const SQL = await initSqlJs();
+
+  const existingBuffer = fs.existsSync(dbFilePath) ? fs.readFileSync(dbFilePath) : undefined;
+  const wasmDb = existingBuffer ? new SQL.Database(existingBuffer) : new SQL.Database();
+  wasmDb.run('PRAGMA foreign_keys = ON;');
+
+  const persist = () => {
+    try {
+      const data = wasmDb.export();
+      fs.writeFileSync(dbFilePath, Buffer.from(data));
+    } catch (e) {
+      console.warn('⚠️ Failed to persist sql.js buffer:', e);
+    }
+  };
+
+  activeDb = {
+    exec(sql: string) {
+      wasmDb.exec(sql);
+      persist();
+    },
+    prepare(sql: string): PreparedStatementLike {
+      return {
+        run(...params: any[]) {
+          const stmt = wasmDb.prepare(sql);
+          try {
+            stmt.run(normalizeParams(params));
+            persist();
+            return { changes: wasmDb.getRowsModified() };
+          } finally {
+            stmt.free();
+          }
+        },
+        get(...params: any[]) {
+          const stmt = wasmDb.prepare(sql);
+          try {
+            stmt.bind(normalizeParams(params));
+            return stmt.step() ? stmt.getAsObject() : undefined;
+          } finally {
+            stmt.free();
+          }
+        },
+        all(...params: any[]) {
+          const stmt = wasmDb.prepare(sql);
+          const rows: any[] = [];
+          try {
+            stmt.bind(normalizeParams(params));
+            while (stmt.step()) {
+              rows.push(stmt.getAsObject());
+            }
+            return rows;
+          } finally {
+            stmt.free();
+          }
+        },
+      };
+    },
+  };
+
+  activeDbEngine = 'sql.js';
+  return activeDbEngine;
+}
+
+export const sqliteDb: SqliteDbLike = {
+  exec(sql: string) {
+    if (!activeDb) {
+      throw new Error('Database engine not initialized yet');
+    }
+    return activeDb.exec(sql);
+  },
+  prepare(sql: string) {
+    if (!activeDb) {
+      throw new Error('Database engine not initialized yet');
+    }
+    return activeDb.prepare(sql);
+  },
+};
 
 // Supabase client instance (optional, when env vars are present)
 export let supabase: SupabaseClient | null = null;

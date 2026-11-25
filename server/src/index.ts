@@ -3,7 +3,7 @@ import cors from 'cors';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
-import { initDatabase, sqliteDb } from './db/database.js';
+import { initDatabaseEngine, initDatabase, sqliteDb, activeDbEngine } from './db/database.js';
 import { seedDatabase } from './db/seed.js';
 import { runMigrationsAndSeed } from './db/migrateAndSeed.js';
 import publicRouter from './routes/public.js';
@@ -34,6 +34,37 @@ if (process.env.VERCEL) {
   app.use('/uploads', express.static('/tmp/uploads'));
 }
 
+// Lazy one-time initialization guard (safe for both Vercel serverless and local dev)
+let startupPromise: Promise<void> | null = null;
+async function ensureInitialized(): Promise<void> {
+  if (!startupPromise) {
+    startupPromise = (async () => {
+      await initDatabaseEngine();
+      initDatabase();
+      seedDatabase();
+      runMigrationsAndSeed();
+    })().catch((err) => {
+      startupPromise = null;
+      throw err;
+    });
+  }
+  return startupPromise;
+}
+
+app.use(async (req, res, next) => {
+  try {
+    await ensureInitialized();
+    next();
+  } catch (err: any) {
+    console.error('❌ Database startup error:', err);
+    res.status(500).json({
+      error: 'Database initialization failed',
+      message: err?.message || String(err),
+      path: req.path,
+    });
+  }
+});
+
 // API Routes
 app.use('/api/public', publicRouter);
 app.use('/api/auth', authRouter);
@@ -44,6 +75,7 @@ app.get('/api/health', (_req, res) => {
   res.json({
     status: 'ok',
     brand: 'Hriday Banquet Hall',
+    dbEngine: activeDbEngine,
     timestamp: new Date().toISOString(),
   });
 });
@@ -124,16 +156,18 @@ app.get('*', (req, res, next) => {
   });
 });
 
-// Initialize database, seed if empty, and run migrations
-initDatabase();
-seedDatabase();
-runMigrationsAndSeed();
-
 if (!process.env.VERCEL) {
-  app.listen(PORT, () => {
-    console.log(`✨ Hriday Banquet Hall Server running at http://localhost:${PORT}`);
-    console.log(`📁 Uploads served from ${uploadsPath}`);
-  });
+  ensureInitialized()
+    .then(() => {
+      app.listen(PORT, () => {
+        console.log(`✨ Hriday Banquet Hall Server running at http://localhost:${PORT}`);
+        console.log(`📁 Uploads served from ${uploadsPath}`);
+      });
+    })
+    .catch((err) => {
+      console.error('❌ Failed to start local server:', err);
+      process.exit(1);
+    });
 }
 
 export default app;
