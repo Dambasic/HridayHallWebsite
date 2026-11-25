@@ -1,9 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const currentDir = import.meta?.url ? path.dirname(fileURLToPath(import.meta.url)) : process.cwd();
+const currentDir = __dirname;
 
 const isVercel = Boolean(process.env.VERCEL || process.env.NOW_REGION);
 

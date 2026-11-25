@@ -1,10 +1,9 @@
 import multer from 'multer';
 import path from 'node:path';
 import fs from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import { supabase } from '../db/database.js';
 
-const currentDir = import.meta?.url ? path.dirname(fileURLToPath(import.meta.url)) : process.cwd();
+const currentDir = __dirname;
 
 const uploadsDir =
   process.env.VERCEL || process.env.NOW_REGION

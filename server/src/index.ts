@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
 import { initDatabaseEngine, initDatabase, sqliteDb, activeDbEngine } from './db/database.js';
 import { seedDatabase } from './db/seed.js';
@@ -12,7 +11,7 @@ import adminRouter from './routes/admin.js';
 
 dotenv.config();
 
-const currentDir = import.meta?.url ? path.dirname(fileURLToPath(import.meta.url)) : process.cwd();
+const currentDir = __dirname;
 
 const app = express();
 const PORT = process.env.PORT || 5001;
