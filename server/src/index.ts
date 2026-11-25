@@ -1,0 +1,139 @@
+import express from 'express';
+import cors from 'cors';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import dotenv from 'dotenv';
+import { initDatabase, sqliteDb } from './db/database.js';
+import { seedDatabase } from './db/seed.js';
+import { runMigrationsAndSeed } from './db/migrateAndSeed.js';
+import publicRouter from './routes/public.js';
+import authRouter from './routes/auth.js';
+import adminRouter from './routes/admin.js';
+
+dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const app = express();
+const PORT = process.env.PORT || 5001;
+
+// CORS configuration
+app.use(cors({
+  origin: true,
+  credentials: true,
+}));
+
+app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ extended: true, limit: '20mb' }));
+
+// Serve static uploads (bundled + /tmp uploads on serverless)
+const uploadsPath = path.resolve(__dirname, '../uploads');
+app.use('/uploads', express.static(uploadsPath));
+if (process.env.VERCEL) {
+  app.use('/uploads', express.static('/tmp/uploads'));
+}
+
+// API Routes
+app.use('/api/public', publicRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/admin', adminRouter);
+
+// Health check endpoint
+app.get('/api/health', (_req, res) => {
+  res.json({
+    status: 'ok',
+    brand: 'Hriday Banquet Hall',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// -------------------------------------------------------------
+// TECHNICAL SEO: Robots.txt & Dynamic XML Sitemap
+// -------------------------------------------------------------
+app.get('/robots.txt', (_req, res) => {
+  res.header('Content-Type', 'text/plain; charset=utf-8');
+  res.send(`# Robots.txt for Hriday Banquet Hall
+# Technical SEO Directives
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/admin/
+Disallow: /api/auth/
+
+# XML Sitemap Location
+Sitemap: https://hridaybanquethall.com/sitemap.xml
+`);
+});
+
+app.get('/sitemap.xml', (_req, res) => {
+  try {
+    const baseUrl = 'https://hridaybanquethall.com';
+    const now = new Date().toISOString();
+
+    const services = sqliteDb
+      .prepare('SELECT slug, updated_at FROM services WHERE is_active = 1 ORDER BY display_order ASC')
+      .all() as Array<{ slug: string; updated_at?: string }>;
+
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+    xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n`;
+
+    // 1. Homepage
+    xml += `  <url>\n`;
+    xml += `    <loc>${baseUrl}/</loc>\n`;
+    xml += `    <lastmod>${now}</lastmod>\n`;
+    xml += `    <changefreq>daily</changefreq>\n`;
+    xml += `    <priority>1.0</priority>\n`;
+    xml += `  </url>\n`;
+
+    // 2. Active Service Landing Pages
+    for (const s of services) {
+      const lastMod = s.updated_at || now;
+      xml += `  <url>\n`;
+      xml += `    <loc>${baseUrl}/services/${s.slug}</loc>\n`;
+      xml += `    <lastmod>${lastMod}</lastmod>\n`;
+      xml += `    <changefreq>weekly</changefreq>\n`;
+      xml += `    <priority>0.85</priority>\n`;
+      xml += `  </url>\n`;
+    }
+
+    xml += `</urlset>`;
+
+    res.header('Content-Type', 'application/xml; charset=utf-8');
+    res.send(xml);
+  } catch (err) {
+    console.error('Error generating sitemap:', err);
+    res.status(500).send('Error generating XML sitemap');
+  }
+});
+
+// Production: serve built client assets if available
+const clientDistPath = path.resolve(__dirname, '../../client/dist');
+app.use(express.static(clientDistPath));
+
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+    return next();
+  }
+  const indexPath = path.join(clientDistPath, 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      res.status(200).send('Hriday Banquet Hall API Server Running. Please run the frontend client or build it.');
+    }
+  });
+});
+
+// Initialize database, seed if empty, and run migrations
+initDatabase();
+seedDatabase();
+runMigrationsAndSeed();
+
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`✨ Hriday Banquet Hall Server running at http://localhost:${PORT}`);
+    console.log(`📁 Uploads served from ${uploadsPath}`);
+  });
+}
+
+export default app;

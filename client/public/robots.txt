@@ -1,0 +1,11 @@
+# Robots.txt for Hriday Banquet Hall
+# Technical SEO Directives
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/admin/
+Disallow: /api/auth/
+
+# XML Sitemap Location
+Sitemap: https://hridaybanquethall.com/sitemap.xml

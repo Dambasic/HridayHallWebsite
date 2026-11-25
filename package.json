@@ -1,0 +1,21 @@
+{
+  "name": "hriday-banquet-hall",
+  "version": "1.0.0",
+  "description": "Hriday Banquet Hall - Premium Website with Admin Panel",
+  "private": true,
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "build": "cd client && npm run build && cd ../server && npm run build",
+    "vercel-build": "npm install --prefix client && npm install --prefix server && npm run build --prefix client && npm run build --prefix server",
+    "start": "cd server && npm start",
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}

@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    overflow-x: clip;
+  }
+
+  body {
+    background-color: #FFF9F0;
+    color: #1E161B;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    overflow-x: clip;
+  }
+
+  h1, h2, h3, h4, .font-serif {
+    font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  }
+}
+
+/* Custom luxury scrollbar in Warm Ivory & Metallic Gold */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FFF9F0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D4A72C;
+  border-radius: 5px;
+  border: 2px solid #FFF9F0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #B88B1E;
+}
+
+/* Elegant metallic gold gradient text */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #F8EFCF 0%, #D4A72C 50%, #946D14 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Subtle gold shimmer animation for buttons & badges */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(212, 167, 44, 0.25) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite;
+}
+
+/* Gold border glow on hover */
+.hover-gold-border {
+  transition: all 0.3s ease;
+  border: 1px solid rgba(212, 167, 44, 0.25);
+}
+
+.hover-gold-border:hover {
+  border-color: rgba(212, 167, 44, 0.85);
+  box-shadow: 0 10px 30px -10px rgba(212, 167, 44, 0.3);
+}
+
+/* Floating animation */
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-float {
+  animation: floatSlow 5s ease-in-out infinite;
+}
+
+/* 3.5s Floating Showcase Progress Animation */
+@keyframes heroProgress3s {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.animate-hero-progress {
+  animation: heroProgress3s 3500ms linear infinite;
+}
+
+/* Hide horizontal scrollbars cleanly where used */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
