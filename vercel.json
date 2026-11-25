@@ -1,29 +1,30 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
-  "buildCommand": "npm run vercel-build",
+  "installCommand": "npm install --prefix client && npm install --prefix server",
+  "buildCommand": "npm run build --prefix client && npm run build --prefix server",
   "outputDirectory": "client/dist",
   "functions": {
-    "api/index.ts": {
+    "api/index.mjs": {
       "includeFiles": "server/{dist,data,node_modules}/**"
     }
   },
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/index.ts"
+      "destination": "/api/index.mjs"
     },
     {
       "source": "/uploads/(.*)",
-      "destination": "/api/index.ts"
+      "destination": "/api/index.mjs"
     },
     {
       "source": "/robots.txt",
-      "destination": "/api/index.ts"
+      "destination": "/api/index.mjs"
     },
     {
       "source": "/sitemap.xml",
-      "destination": "/api/index.ts"
+      "destination": "/api/index.mjs"
     },
     {
       "source": "/(.*)",
