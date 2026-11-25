@@ -47,10 +47,10 @@ export async function initDatabaseEngine(): Promise<'turso' | 'node:sqlite' | 's
     return activeDbEngine;
   }
 
-  // 1. Turso Cloud SQLite (libSQL) when TURSO_DATABASE_URL is configured
+  // 1. Turso Cloud SQLite (libSQL pure-web HTTP/WS client — zero native binary dependencies)
   const tursoUrl = process.env.TURSO_DATABASE_URL?.trim();
   if (tursoUrl) {
-    const { createClient: createLibsqlClient } = await import('@libsql/client');
+    const { createClient: createLibsqlClient } = await import('@libsql/client/web');
     const client = createLibsqlClient({
       url: tursoUrl,
       authToken: process.env.TURSO_AUTH_TOKEN?.trim(),
