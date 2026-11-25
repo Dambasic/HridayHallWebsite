@@ -3,14 +3,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const currentDir = import.meta?.url ? path.dirname(fileURLToPath(import.meta.url)) : process.cwd();
 
-const isVercel = Boolean(process.env.VERCEL);
+const isVercel = Boolean(process.env.VERCEL || process.env.NOW_REGION);
 
 function resolveBundledDbPath(): string {
   const candidates = [
-    path.resolve(__dirname, '../../data/hriday_banquet.db'),
+    path.resolve(currentDir, '../../data/hriday_banquet.db'),
     path.resolve(process.cwd(), 'data/hriday_banquet.db'),
     path.resolve(process.cwd(), 'server/data/hriday_banquet.db'),
   ];
@@ -23,20 +22,7 @@ function resolveBundledDbPath(): string {
 }
 
 const bundledDbPath = resolveBundledDbPath();
-let dbFilePath = bundledDbPath;
-
-if (isVercel) {
-  const tmpDbPath = path.join('/tmp', 'hriday_banquet.db');
-  if (!fs.existsSync(tmpDbPath) && fs.existsSync(bundledDbPath)) {
-    fs.copyFileSync(bundledDbPath, tmpDbPath);
-  }
-  dbFilePath = tmpDbPath;
-} else {
-  const localDataDir = path.dirname(bundledDbPath);
-  if (!fs.existsSync(localDataDir)) {
-    fs.mkdirSync(localDataDir, { recursive: true });
-  }
-}
+let dbFilePath = isVercel ? path.join('/tmp', 'hriday_banquet.db') : bundledDbPath;
 
 export interface PreparedStatementLike {
   run: (...params: any[]) => Promise<any>;
@@ -101,6 +87,10 @@ export async function initDatabaseEngine(): Promise<'turso' | 'node:sqlite' | 's
   // 2. Local native node:sqlite on Node 22.5+/24
   if (!isVercel) {
     try {
+      const localDataDir = path.dirname(dbFilePath);
+      if (!fs.existsSync(localDataDir)) {
+        fs.mkdirSync(localDataDir, { recursive: true });
+      }
       const { DatabaseSync } = await import('node:sqlite');
       const nativeDb = new DatabaseSync(dbFilePath);
       nativeDb.exec('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
@@ -131,6 +121,13 @@ export async function initDatabaseEngine(): Promise<'turso' | 'node:sqlite' | 's
   }
 
   // 3. Pure WASM sql.js fallback (works on any Vercel serverless container)
+  if (isVercel && !fs.existsSync(dbFilePath) && fs.existsSync(bundledDbPath)) {
+    try {
+      fs.copyFileSync(bundledDbPath, dbFilePath);
+    } catch {
+      // ignore
+    }
+  }
   const sqlJsModule = await import('sql.js/dist/sql-wasm-inline.js');
   const initSqlJs = (sqlJsModule.default || sqlJsModule) as any;
   const SQL = await initSqlJs();

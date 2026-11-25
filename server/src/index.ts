@@ -12,8 +12,7 @@ import adminRouter from './routes/admin.js';
 
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const currentDir = import.meta?.url ? path.dirname(fileURLToPath(import.meta.url)) : process.cwd();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -28,9 +27,9 @@ app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
 // Serve static uploads (bundled + /tmp uploads on serverless)
-const uploadsPath = path.resolve(__dirname, '../uploads');
+const uploadsPath = path.resolve(currentDir, '../uploads');
 app.use('/uploads', express.static(uploadsPath));
-if (process.env.VERCEL) {
+if (process.env.VERCEL || process.env.NOW_REGION) {
   app.use('/uploads', express.static('/tmp/uploads'));
 }
 
@@ -141,7 +140,7 @@ app.get('/sitemap.xml', async (_req, res) => {
 });
 
 // Production: serve built client assets if available
-const clientDistPath = path.resolve(__dirname, '../../client/dist');
+const clientDistPath = path.resolve(currentDir, '../../client/dist');
 app.use(express.static(clientDistPath));
 
 app.get('*', (req, res, next) => {
@@ -156,7 +155,7 @@ app.get('*', (req, res, next) => {
   });
 });
 
-if (!process.env.VERCEL) {
+if (!process.env.VERCEL && !process.env.NOW_REGION) {
   ensureInitialized()
     .then(() => {
       app.listen(PORT, () => {

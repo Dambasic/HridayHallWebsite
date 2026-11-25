@@ -4,14 +4,18 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { supabase } from '../db/database.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const currentDir = import.meta?.url ? path.dirname(fileURLToPath(import.meta.url)) : process.cwd();
 
-const uploadsDir = process.env.VERCEL
-  ? path.join('/tmp', 'uploads')
-  : path.resolve(__dirname, '../../uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+const uploadsDir =
+  process.env.VERCEL || process.env.NOW_REGION
+    ? path.join('/tmp', 'uploads')
+    : path.resolve(currentDir, '../../uploads');
+try {
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+} catch {
+  // Ignore read-only filesystem errors at import time; Multer/tmp handles runtime
 }
 
 const storage = multer.diskStorage({
