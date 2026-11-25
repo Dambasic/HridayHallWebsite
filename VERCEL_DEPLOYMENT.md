@@ -1,32 +1,27 @@
 # Vercel Deployment Guide — Hriday Banquet Hall
 
-This project is arranged for single-project full-stack deployment on **Vercel** (`client/` Vite React frontend + `/api/index.ts` Express serverless backend + pre-populated SQLite data & uploaded images).
+This project is arranged for single-project full-stack deployment on **Vercel** using Vercel Services (`client` Vite frontend + `server` Express backend) with **Turso Cloud SQLite** + **Supabase Storage** support.
 
-## Project Arrangement
-- `vercel.json` — Build command (`npm run vercel-build`), static output (`client/dist`), serverless bundle rules, and SPA/API rewrites.
-- `api/index.ts` — Vercel Serverless Function entrypoint forwarding `/api/*`, `/uploads/*`, `/robots.txt`, and `/sitemap.xml` to the Express app (`server/dist/index.js`).
-- `client/public/uploads/` — Pre-uploaded banquet & reel cover images served directly by Vercel CDN at `/uploads/<filename>`.
-- `server/data/hriday_banquet.db` — Bundled SQLite database (copied automatically to writable `/tmp/hriday_banquet.db` on Vercel serverless startup).
+## Recommended Production Environment Variables (Vercel)
 
-## How to Upload / Deploy to Vercel
+Add these under **Vercel Project → Settings → Environment Variables**:
 
-### Option 1: Deploy via GitHub + Vercel Dashboard (Recommended)
-1. Push this project folder (`hriday-banquet-hall`) to a GitHub repository.
-2. In **Vercel Dashboard** → **Add New Project** → Import the repository.
-3. Keep **Root Directory** as `.` (project root) — `vercel.json` automatically configures the build and output directory.
-4. Under **Environment Variables**, add:
-   - `JWT_SECRET` = any strong random secret string (e.g., 32+ characters)
-   - *(Optional, for persistent cloud database/image storage across cold starts)*:
-     - `SUPABASE_URL`
-     - `SUPABASE_SERVICE_ROLE_KEY`
-     - `SUPABASE_STORAGE_BUCKET` = `gallery-images`
-5. Click **Deploy**.
+### 1. Required Authentication Secret
+- `JWT_SECRET` = strong random secret (e.g., `617ff3bc2498df2412662b43cf4dfbe03798e3f5bb70cd32c150ce832fa51a61`)
 
-### Option 2: Deploy Directly from CLI
-```bash
-npx vercel --prod
-```
+### 2. Persistent Cloud Database (Turso Cloud SQLite)
+1. Create a free database at [turso.tech](https://turso.tech) (e.g. `hriday-banquet`).
+2. Copy the Database URL and generate an Auth Token (`turso db tokens create hriday-banquet`).
+3. Add in Vercel Environment Variables:
+   - `TURSO_DATABASE_URL` = `libsql://your-db-name.turso.io`
+   - `TURSO_AUTH_TOKEN` = `your-turso-auth-token`
+   - On the first request, the server automatically creates all tables and seeds the initial data (including services, reels, contact `+91 9604540084`, email `sunshineexplores2016@gmail.com`, Pune Google Maps, and Instagram/Facebook links).
 
-## Notes on Serverless Storage
-- On Vercel, `/tmp/hriday_banquet.db` and `/tmp/uploads/` are used for runtime writes. Pre-seeded services, reels, cover images, contact details (`+91 9604540084`, `sunshineexplores2016@gmail.com`, Pune Google Maps, Instagram & Facebook links), and pre-uploaded `/uploads/*` photos are bundled directly into the deployment.
-- If you want Admin Panel edits or new image uploads made in production to persist permanently across serverless cold starts, connect **Supabase** env vars (`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_STORAGE_BUCKET`).
+### 3. Persistent Cloud Image Storage (Supabase Storage)
+1. Create a free project at [supabase.com](https://supabase.com) → **Storage** → **New Bucket** named `gallery-images` with **Public Bucket** enabled.
+2. Add in Vercel Environment Variables:
+   - `SUPABASE_URL` = `https://your-project-id.supabase.co`
+   - `SUPABASE_SERVICE_ROLE_KEY` = `your-supabase-service-role-key`
+   - `SUPABASE_STORAGE_BUCKET` = `gallery-images`
+
+> Without `TURSO_DATABASE_URL`, the server automatically falls back to `sql.js` in `/tmp/hriday_banquet.db` on Vercel (read/write during warm containers, ephemeral on cold starts) and `node:sqlite` locally.

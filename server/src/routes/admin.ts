@@ -11,25 +11,25 @@ router.use(requireAdminAuth);
 // -------------------------------------------------------------
 // 1. Dashboard Overview
 // -------------------------------------------------------------
-router.get('/dashboard', (_req: AuthenticatedRequest, res: Response) => {
+router.get('/dashboard', async (_req: AuthenticatedRequest, res: Response) => {
   try {
-    const totalGallery = (sqliteDb.prepare('SELECT COUNT(*) as count FROM gallery_images').get() as any)?.count || 0;
-    const activeGallery = (sqliteDb.prepare('SELECT COUNT(*) as count FROM gallery_images WHERE is_active = 1').get() as any)?.count || 0;
+    const totalGallery = (await sqliteDb.prepare('SELECT COUNT(*) as count FROM gallery_images').get() as any)?.count || 0;
+    const activeGallery = (await sqliteDb.prepare('SELECT COUNT(*) as count FROM gallery_images WHERE is_active = 1').get() as any)?.count || 0;
 
-    const totalServices = (sqliteDb.prepare('SELECT COUNT(*) as count FROM services').get() as any)?.count || 0;
-    const activeServices = (sqliteDb.prepare('SELECT COUNT(*) as count FROM services WHERE is_active = 1').get() as any)?.count || 0;
+    const totalServices = (await sqliteDb.prepare('SELECT COUNT(*) as count FROM services').get() as any)?.count || 0;
+    const activeServices = (await sqliteDb.prepare('SELECT COUNT(*) as count FROM services WHERE is_active = 1').get() as any)?.count || 0;
 
-    const totalCelebrations = (sqliteDb.prepare('SELECT COUNT(*) as count FROM celebrations').get() as any)?.count || 0;
-    const featuredCelebrations = (sqliteDb.prepare('SELECT COUNT(*) as count FROM celebrations WHERE is_featured = 1 AND is_active = 1').get() as any)?.count || 0;
+    const totalCelebrations = (await sqliteDb.prepare('SELECT COUNT(*) as count FROM celebrations').get() as any)?.count || 0;
+    const featuredCelebrations = (await sqliteDb.prepare('SELECT COUNT(*) as count FROM celebrations WHERE is_featured = 1 AND is_active = 1').get() as any)?.count || 0;
 
-    const whatsappHriday = sqliteDb.prepare("SELECT phone_number FROM whatsapp_settings WHERE entity = 'hriday'").get() as any;
-    const whatsappSunshine = sqliteDb.prepare("SELECT phone_number FROM whatsapp_settings WHERE entity = 'sunshine'").get() as any;
+    const whatsappHriday = await sqliteDb.prepare("SELECT phone_number FROM whatsapp_settings WHERE entity = 'hriday'").get() as any;
+    const whatsappSunshine = await sqliteDb.prepare("SELECT phone_number FROM whatsapp_settings WHERE entity = 'sunshine'").get() as any;
 
-    const contact = sqliteDb.prepare('SELECT * FROM contact_information LIMIT 1').get() as any;
-    const settings = sqliteDb.prepare('SELECT section_visibility FROM website_settings LIMIT 1').get() as any;
+    const contact = await sqliteDb.prepare('SELECT * FROM contact_information LIMIT 1').get() as any;
+    const settings = await sqliteDb.prepare('SELECT section_visibility FROM website_settings LIMIT 1').get() as any;
 
-    const totalEnquiries = (sqliteDb.prepare('SELECT COUNT(*) as count FROM enquiries').get() as any)?.count || 0;
-    const newEnquiries = (sqliteDb.prepare("SELECT COUNT(*) as count FROM enquiries WHERE status = 'new'").get() as any)?.count || 0;
+    const totalEnquiries = (await sqliteDb.prepare('SELECT COUNT(*) as count FROM enquiries').get() as any)?.count || 0;
+    const newEnquiries = (await sqliteDb.prepare("SELECT COUNT(*) as count FROM enquiries WHERE status = 'new'").get() as any)?.count || 0;
 
     let visibility = { hero: true, about: true, services: true, gallery: true, instagram: true, sunshine: true, contact: true };
     if (settings?.section_visibility) {
@@ -82,7 +82,7 @@ router.get('/dashboard', (_req: AuthenticatedRequest, res: Response) => {
 // -------------------------------------------------------------
 // 1B. Real-Time Analytics Telemetry Endpoint
 // -------------------------------------------------------------
-router.get('/analytics/realtime', (_req: AuthenticatedRequest, res: Response) => {
+router.get('/analytics/realtime', async (_req: AuthenticatedRequest, res: Response) => {
   try {
     const now = new Date();
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
@@ -90,22 +90,22 @@ router.get('/analytics/realtime', (_req: AuthenticatedRequest, res: Response) =>
     const twelveHoursAgo = new Date(now.getTime() - 12 * 60 * 60 * 1000).toISOString();
 
     // 1. Total & Today's Page Views
-    const totalViews = (sqliteDb.prepare("SELECT COUNT(*) as count FROM analytics_events WHERE event_type = 'page_view'").get() as any)?.count || 0;
-    const todayViews = (sqliteDb.prepare("SELECT COUNT(*) as count FROM analytics_events WHERE event_type = 'page_view' AND created_at >= ?").get(todayStart) as any)?.count || 0;
+    const totalViews = (await sqliteDb.prepare("SELECT COUNT(*) as count FROM analytics_events WHERE event_type = 'page_view'").get() as any)?.count || 0;
+    const todayViews = (await sqliteDb.prepare("SELECT COUNT(*) as count FROM analytics_events WHERE event_type = 'page_view' AND created_at >= ?").get(todayStart) as any)?.count || 0;
 
     // 2. Real-Time Active Users (distinct session_ids active in last 10 minutes)
-    const activeUsersCount = (sqliteDb.prepare("SELECT COUNT(DISTINCT session_id) as count FROM analytics_events WHERE created_at >= ?").get(tenMinutesAgo) as any)?.count || 0;
+    const activeUsersCount = (await sqliteDb.prepare("SELECT COUNT(DISTINCT session_id) as count FROM analytics_events WHERE created_at >= ?").get(tenMinutesAgo) as any)?.count || 0;
     const activeUsers = activeUsersCount;
 
     // 3. WhatsApp Button Clicks
-    const totalWhatsAppClicks = (sqliteDb.prepare("SELECT COUNT(*) as count FROM analytics_events WHERE event_type = 'whatsapp_click'").get() as any)?.count || 0;
-    const todayWhatsAppClicks = (sqliteDb.prepare("SELECT COUNT(*) as count FROM analytics_events WHERE event_type = 'whatsapp_click' AND created_at >= ?").get(todayStart) as any)?.count || 0;
+    const totalWhatsAppClicks = (await sqliteDb.prepare("SELECT COUNT(*) as count FROM analytics_events WHERE event_type = 'whatsapp_click'").get() as any)?.count || 0;
+    const todayWhatsAppClicks = (await sqliteDb.prepare("SELECT COUNT(*) as count FROM analytics_events WHERE event_type = 'whatsapp_click' AND created_at >= ?").get(todayStart) as any)?.count || 0;
 
     // 4. Conversion Rate (WhatsApp Clicks / Total Views)
     const conversionRate = totalViews > 0 ? Number(((totalWhatsAppClicks / totalViews) * 100).toFixed(1)) : 0;
 
     // 5. Clicks by Placement
-    const placementRows = sqliteDb.prepare(`
+    const placementRows = await sqliteDb.prepare(`
       SELECT placement, COUNT(*) as count 
       FROM analytics_events 
       WHERE event_type = 'whatsapp_click' AND placement != '' 
@@ -126,7 +126,7 @@ router.get('/analytics/realtime', (_req: AuthenticatedRequest, res: Response) =>
     });
 
     // 6. Top Visited Pages
-    const topPages = sqliteDb.prepare(`
+    const topPages = await sqliteDb.prepare(`
       SELECT page_url, page_title, COUNT(*) as views 
       FROM analytics_events 
       WHERE event_type = 'page_view' 
@@ -136,7 +136,7 @@ router.get('/analytics/realtime', (_req: AuthenticatedRequest, res: Response) =>
     `).all() as any[];
 
     // 7. Recent Real-Time Events Stream
-    const recentEventsRows = sqliteDb.prepare(`
+    const recentEventsRows = await sqliteDb.prepare(`
       SELECT id, event_type, session_id, page_url, page_title, placement, metadata, created_at 
       FROM analytics_events 
       ORDER BY created_at DESC 
@@ -161,8 +161,8 @@ router.get('/analytics/realtime', (_req: AuthenticatedRequest, res: Response) =>
     for (let i = 11; i >= 0; i--) {
       const hStart = new Date(now.getTime() - (i + 1) * 60 * 60 * 1000).toISOString();
       const hEnd = new Date(now.getTime() - i * 60 * 60 * 1000).toISOString();
-      const views = (sqliteDb.prepare("SELECT COUNT(*) as count FROM analytics_events WHERE event_type = 'page_view' AND created_at >= ? AND created_at < ?").get(hStart, hEnd) as any)?.count || 0;
-      const clicks = (sqliteDb.prepare("SELECT COUNT(*) as count FROM analytics_events WHERE event_type = 'whatsapp_click' AND created_at >= ? AND created_at < ?").get(hStart, hEnd) as any)?.count || 0;
+      const views = (await sqliteDb.prepare("SELECT COUNT(*) as count FROM analytics_events WHERE event_type = 'page_view' AND created_at >= ? AND created_at < ?").get(hStart, hEnd) as any)?.count || 0;
+      const clicks = (await sqliteDb.prepare("SELECT COUNT(*) as count FROM analytics_events WHERE event_type = 'whatsapp_click' AND created_at >= ? AND created_at < ?").get(hStart, hEnd) as any)?.count || 0;
 
       const hourLabel = new Date(now.getTime() - i * 60 * 60 * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       hourlyTrend.push({
@@ -193,9 +193,9 @@ router.get('/analytics/realtime', (_req: AuthenticatedRequest, res: Response) =>
   }
 });
 
-router.post('/analytics/reset', (_req: AuthenticatedRequest, res: Response) => {
+router.post('/analytics/reset', async (_req: AuthenticatedRequest, res: Response) => {
   try {
-    sqliteDb.exec('DELETE FROM analytics_events');
+    await sqliteDb.exec('DELETE FROM analytics_events');
     res.json({ success: true, message: 'All analytics telemetry has been reset to 0' });
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to reset analytics' });
@@ -248,9 +248,9 @@ router.post('/upload-multiple', upload.array('images', 10), async (req: Authenti
 // -------------------------------------------------------------
 // 3. Website Settings
 // -------------------------------------------------------------
-router.get('/settings', (_req: AuthenticatedRequest, res: Response) => {
+router.get('/settings', async (_req: AuthenticatedRequest, res: Response) => {
   try {
-    const settings = sqliteDb.prepare('SELECT * FROM website_settings LIMIT 1').get() as any;
+    const settings = await sqliteDb.prepare('SELECT * FROM website_settings LIMIT 1').get() as any;
     if (settings && typeof settings.section_visibility === 'string') {
       try {
         settings.section_visibility = JSON.parse(settings.section_visibility);
@@ -264,7 +264,7 @@ router.get('/settings', (_req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-router.put('/settings', (req: AuthenticatedRequest, res: Response) => {
+router.put('/settings', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const {
       site_title,
@@ -283,7 +283,7 @@ router.put('/settings', (req: AuthenticatedRequest, res: Response) => {
     const now = new Date().toISOString();
     const visStr = typeof section_visibility === 'object' ? JSON.stringify(section_visibility) : section_visibility;
 
-    sqliteDb.prepare(`
+    await sqliteDb.prepare(`
       UPDATE website_settings SET
         site_title = ?,
         tagline = ?,
@@ -323,16 +323,16 @@ router.put('/settings', (req: AuthenticatedRequest, res: Response) => {
 // -------------------------------------------------------------
 // 4. About Content
 // -------------------------------------------------------------
-router.get('/about', (_req: AuthenticatedRequest, res: Response) => {
+router.get('/about', async (_req: AuthenticatedRequest, res: Response) => {
   try {
-    const about = sqliteDb.prepare('SELECT * FROM about_content LIMIT 1').get();
+    const about = await sqliteDb.prepare('SELECT * FROM about_content LIMIT 1').get();
     res.json(about);
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to fetch about content' });
   }
 });
 
-router.put('/about', (req: AuthenticatedRequest, res: Response) => {
+router.put('/about', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const {
       heading,
@@ -348,7 +348,7 @@ router.put('/about', (req: AuthenticatedRequest, res: Response) => {
 
     const now = new Date().toISOString();
 
-    sqliteDb.prepare(`
+    await sqliteDb.prepare(`
       UPDATE about_content SET
         heading = ?,
         description = ?,
@@ -383,24 +383,24 @@ router.put('/about', (req: AuthenticatedRequest, res: Response) => {
 // -------------------------------------------------------------
 // 5. Services Manager & Service Media
 // -------------------------------------------------------------
-router.get('/services', (_req: AuthenticatedRequest, res: Response) => {
+router.get('/services', async (_req: AuthenticatedRequest, res: Response) => {
   try {
-    const services = sqliteDb.prepare('SELECT * FROM services ORDER BY display_order ASC, created_at ASC').all();
+    const services = await sqliteDb.prepare('SELECT * FROM services ORDER BY display_order ASC, created_at ASC').all();
     res.json(services);
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to fetch services' });
   }
 });
 
-router.get('/services/:id', (req: AuthenticatedRequest, res: Response) => {
+router.get('/services/:id', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const id = String(req.params.id);
-    const service = sqliteDb.prepare('SELECT * FROM services WHERE id = ?').get(id) as any;
+    const service = await sqliteDb.prepare('SELECT * FROM services WHERE id = ?').get(id) as any;
     if (!service) {
       return res.status(404).json({ error: 'Service not found' });
     }
-    const gallery = sqliteDb.prepare('SELECT * FROM service_gallery WHERE service_id = ? ORDER BY display_order ASC').all(id);
-    const instagramMedia = sqliteDb.prepare('SELECT * FROM service_instagram_media WHERE service_id = ? ORDER BY display_order ASC').all(id);
+    const gallery = await sqliteDb.prepare('SELECT * FROM service_gallery WHERE service_id = ? ORDER BY display_order ASC').all(id);
+    const instagramMedia = await sqliteDb.prepare('SELECT * FROM service_instagram_media WHERE service_id = ? ORDER BY display_order ASC').all(id);
 
     let parsedFeatures: string[] = [];
     if (service.features) {
@@ -422,7 +422,7 @@ router.get('/services/:id', (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-router.post('/services', (req: AuthenticatedRequest, res: Response) => {
+router.post('/services', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { title, slug, description, short_description, full_description, features, image_url, category, display_order, is_active } = req.body;
     if (!title || !title.trim()) {
@@ -434,7 +434,7 @@ router.post('/services', (req: AuthenticatedRequest, res: Response) => {
     const finalSlug = (slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')).trim();
     const finalFeatures = typeof features === 'string' ? features : JSON.stringify(features || []);
 
-    sqliteDb.prepare(`
+    await sqliteDb.prepare(`
       INSERT INTO services (id, title, slug, description, short_description, full_description, features, image_url, category, display_order, is_active, created_at, updated_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
@@ -459,7 +459,7 @@ router.post('/services', (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-router.put('/services/:id', (req: AuthenticatedRequest, res: Response) => {
+router.put('/services/:id', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const id = String(req.params.id);
     const { title, slug, description, short_description, full_description, features, image_url, category, display_order, is_active } = req.body;
@@ -467,7 +467,7 @@ router.put('/services/:id', (req: AuthenticatedRequest, res: Response) => {
     const finalSlug = (slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')).trim();
     const finalFeatures = typeof features === 'string' ? features : JSON.stringify(features || []);
 
-    sqliteDb.prepare(`
+    await sqliteDb.prepare(`
       UPDATE services SET
         title = ?,
         slug = ?,
@@ -502,12 +502,12 @@ router.put('/services/:id', (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-router.delete('/services/:id', (req: AuthenticatedRequest, res: Response) => {
+router.delete('/services/:id', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const id = String(req.params.id);
-    sqliteDb.prepare('DELETE FROM service_gallery WHERE service_id = ?').run(id);
-    sqliteDb.prepare('DELETE FROM service_instagram_media WHERE service_id = ?').run(id);
-    sqliteDb.prepare('DELETE FROM services WHERE id = ?').run(id);
+    await sqliteDb.prepare('DELETE FROM service_gallery WHERE service_id = ?').run(id);
+    await sqliteDb.prepare('DELETE FROM service_instagram_media WHERE service_id = ?').run(id);
+    await sqliteDb.prepare('DELETE FROM services WHERE id = ?').run(id);
     res.json({ success: true, message: 'Service deleted successfully' });
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to delete service' });
@@ -515,17 +515,17 @@ router.delete('/services/:id', (req: AuthenticatedRequest, res: Response) => {
 });
 
 // Service Gallery Endpoints
-router.get('/services/:id/gallery', (req: AuthenticatedRequest, res: Response) => {
+router.get('/services/:id/gallery', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const id = String(req.params.id);
-    const gallery = sqliteDb.prepare('SELECT * FROM service_gallery WHERE service_id = ? ORDER BY display_order ASC, created_at ASC').all(id);
+    const gallery = await sqliteDb.prepare('SELECT * FROM service_gallery WHERE service_id = ? ORDER BY display_order ASC, created_at ASC').all(id);
     res.json(gallery);
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to fetch service gallery' });
   }
 });
 
-router.post('/services/:id/gallery', (req: AuthenticatedRequest, res: Response) => {
+router.post('/services/:id/gallery', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const serviceId = String(req.params.id);
     const { image_url, caption, display_order } = req.body;
@@ -535,7 +535,7 @@ router.post('/services/:id/gallery', (req: AuthenticatedRequest, res: Response) 
     const id = 'sg_' + Date.now() + '_' + Math.round(Math.random() * 1000);
     const now = new Date().toISOString();
 
-    sqliteDb.prepare(`
+    await sqliteDb.prepare(`
       INSERT INTO service_gallery (id, service_id, image_url, caption, display_order, created_at)
       VALUES (?, ?, ?, ?, ?, ?)
     `).run(id, serviceId, image_url.trim(), caption || '', display_order || 0, now);
@@ -546,10 +546,10 @@ router.post('/services/:id/gallery', (req: AuthenticatedRequest, res: Response) 
   }
 });
 
-router.delete('/services/gallery/:galleryId', (req: AuthenticatedRequest, res: Response) => {
+router.delete('/services/gallery/:galleryId', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const galleryId = String(req.params.galleryId);
-    sqliteDb.prepare('DELETE FROM service_gallery WHERE id = ?').run(galleryId);
+    await sqliteDb.prepare('DELETE FROM service_gallery WHERE id = ?').run(galleryId);
     res.json({ success: true, message: 'Gallery image removed' });
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to remove gallery image' });
@@ -557,17 +557,17 @@ router.delete('/services/gallery/:galleryId', (req: AuthenticatedRequest, res: R
 });
 
 // Service Instagram Media Endpoints
-router.get('/services/:id/instagram', (req: AuthenticatedRequest, res: Response) => {
+router.get('/services/:id/instagram', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const id = String(req.params.id);
-    const media = sqliteDb.prepare('SELECT * FROM service_instagram_media WHERE service_id = ? ORDER BY display_order ASC, created_at ASC').all(id);
+    const media = await sqliteDb.prepare('SELECT * FROM service_instagram_media WHERE service_id = ? ORDER BY display_order ASC, created_at ASC').all(id);
     res.json(media);
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to fetch service Instagram media' });
   }
 });
 
-router.post('/services/:id/instagram', (req: AuthenticatedRequest, res: Response) => {
+router.post('/services/:id/instagram', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const serviceId = String(req.params.id);
     const { instagram_url, cover_image, media_type, title, caption, display_order } = req.body;
@@ -577,7 +577,7 @@ router.post('/services/:id/instagram', (req: AuthenticatedRequest, res: Response
     const id = 'sim_' + Date.now() + '_' + Math.round(Math.random() * 1000);
     const now = new Date().toISOString();
 
-    sqliteDb.prepare(`
+    await sqliteDb.prepare(`
       INSERT INTO service_instagram_media (id, service_id, instagram_url, cover_image, media_type, title, caption, display_order, created_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(id, serviceId, instagram_url.trim(), cover_image || '', media_type || 'reel', title || '', caption || '', display_order || 0, now);
@@ -588,10 +588,10 @@ router.post('/services/:id/instagram', (req: AuthenticatedRequest, res: Response
   }
 });
 
-router.put('/services/instagram/:mediaId', (req: AuthenticatedRequest, res: Response) => {
+router.put('/services/instagram/:mediaId', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const mediaId = String(req.params.mediaId);
-    const existing = sqliteDb.prepare('SELECT * FROM service_instagram_media WHERE id = ?').get(mediaId) as any;
+    const existing = await sqliteDb.prepare('SELECT * FROM service_instagram_media WHERE id = ?').get(mediaId) as any;
     if (!existing) {
       return res.status(404).json({ error: 'Instagram media not found' });
     }
@@ -602,7 +602,7 @@ router.put('/services/instagram/:mediaId', (req: AuthenticatedRequest, res: Resp
       return res.status(400).json({ error: 'Instagram URL is required' });
     }
 
-    sqliteDb.prepare(`
+    await sqliteDb.prepare(`
       UPDATE service_instagram_media SET
         instagram_url = ?,
         cover_image = ?,
@@ -627,10 +627,10 @@ router.put('/services/instagram/:mediaId', (req: AuthenticatedRequest, res: Resp
   }
 });
 
-router.delete('/services/instagram/:mediaId', (req: AuthenticatedRequest, res: Response) => {
+router.delete('/services/instagram/:mediaId', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const mediaId = String(req.params.mediaId);
-    sqliteDb.prepare('DELETE FROM service_instagram_media WHERE id = ?').run(mediaId);
+    await sqliteDb.prepare('DELETE FROM service_instagram_media WHERE id = ?').run(mediaId);
     res.json({ success: true, message: 'Instagram media removed' });
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to remove Instagram media' });
@@ -640,16 +640,16 @@ router.delete('/services/instagram/:mediaId', (req: AuthenticatedRequest, res: R
 // -------------------------------------------------------------
 // 5B. Celebrations Manager (Real Celebrations & Featured List)
 // -------------------------------------------------------------
-router.get('/celebrations', (_req: AuthenticatedRequest, res: Response) => {
+router.get('/celebrations', async (_req: AuthenticatedRequest, res: Response) => {
   try {
-    const celebrations = sqliteDb.prepare('SELECT * FROM celebrations ORDER BY featured_order ASC, created_at ASC').all();
+    const celebrations = await sqliteDb.prepare('SELECT * FROM celebrations ORDER BY featured_order ASC, created_at ASC').all();
     res.json(celebrations);
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to fetch celebrations' });
   }
 });
 
-router.post('/celebrations', (req: AuthenticatedRequest, res: Response) => {
+router.post('/celebrations', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { title, description, image_url, instagram_url, tag, service_slug, is_featured, featured_order, is_active } = req.body;
     if (!title || !title.trim()) {
@@ -662,7 +662,7 @@ router.post('/celebrations', (req: AuthenticatedRequest, res: Response) => {
     const id = 'cel_' + Date.now();
     const now = new Date().toISOString();
 
-    sqliteDb.prepare(`
+    await sqliteDb.prepare(`
       INSERT INTO celebrations (id, title, description, image_url, instagram_url, tag, service_slug, is_featured, featured_order, is_active, created_at, updated_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
@@ -686,13 +686,13 @@ router.post('/celebrations', (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-router.put('/celebrations/:id', (req: AuthenticatedRequest, res: Response) => {
+router.put('/celebrations/:id', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const id = String(req.params.id);
     const { title, description, image_url, instagram_url, tag, service_slug, is_featured, featured_order, is_active } = req.body;
     const now = new Date().toISOString();
 
-    sqliteDb.prepare(`
+    await sqliteDb.prepare(`
       UPDATE celebrations SET
         title = ?,
         description = ?,
@@ -725,13 +725,13 @@ router.put('/celebrations/:id', (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-router.patch('/celebrations/:id/toggle-featured', (req: AuthenticatedRequest, res: Response) => {
+router.patch('/celebrations/:id/toggle-featured', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const id = String(req.params.id);
     const { is_featured } = req.body;
     const now = new Date().toISOString();
 
-    sqliteDb.prepare(`
+    await sqliteDb.prepare(`
       UPDATE celebrations SET
         is_featured = ?,
         updated_at = ?
@@ -744,13 +744,13 @@ router.patch('/celebrations/:id/toggle-featured', (req: AuthenticatedRequest, re
   }
 });
 
-router.patch('/celebrations/:id/featured-order', (req: AuthenticatedRequest, res: Response) => {
+router.patch('/celebrations/:id/featured-order', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const id = String(req.params.id);
     const { featured_order } = req.body;
     const now = new Date().toISOString();
 
-    sqliteDb.prepare(`
+    await sqliteDb.prepare(`
       UPDATE celebrations SET
         featured_order = ?,
         updated_at = ?
@@ -763,10 +763,10 @@ router.patch('/celebrations/:id/featured-order', (req: AuthenticatedRequest, res
   }
 });
 
-router.delete('/celebrations/:id', (req: AuthenticatedRequest, res: Response) => {
+router.delete('/celebrations/:id', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const id = String(req.params.id);
-    sqliteDb.prepare('DELETE FROM celebrations WHERE id = ?').run(id);
+    await sqliteDb.prepare('DELETE FROM celebrations WHERE id = ?').run(id);
     res.json({ success: true, message: 'Celebration deleted successfully' });
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to delete celebration' });
@@ -776,16 +776,16 @@ router.delete('/celebrations/:id', (req: AuthenticatedRequest, res: Response) =>
 // -------------------------------------------------------------
 // 6. Gallery Manager
 // -------------------------------------------------------------
-router.get('/gallery', (_req: AuthenticatedRequest, res: Response) => {
+router.get('/gallery', async (_req: AuthenticatedRequest, res: Response) => {
   try {
-    const images = sqliteDb.prepare('SELECT * FROM gallery_images ORDER BY display_order ASC, created_at DESC').all();
+    const images = await sqliteDb.prepare('SELECT * FROM gallery_images ORDER BY display_order ASC, created_at DESC').all();
     res.json(images);
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to fetch gallery images' });
   }
 });
 
-router.post('/gallery', (req: AuthenticatedRequest, res: Response) => {
+router.post('/gallery', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { title, description, image_url, category, display_order, is_featured, is_active } = req.body;
     if (!image_url || !image_url.trim()) {
@@ -795,7 +795,7 @@ router.post('/gallery', (req: AuthenticatedRequest, res: Response) => {
     const id = 'gal_' + Date.now();
     const now = new Date().toISOString();
 
-    sqliteDb.prepare(`
+    await sqliteDb.prepare(`
       INSERT INTO gallery_images (id, title, description, image_url, category, display_order, is_featured, is_active, created_at, updated_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
@@ -817,13 +817,13 @@ router.post('/gallery', (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-router.put('/gallery/:id', (req: AuthenticatedRequest, res: Response) => {
+router.put('/gallery/:id', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const id = String(req.params.id);
     const { title, description, image_url, category, display_order, is_featured, is_active } = req.body;
     const now = new Date().toISOString();
 
-    sqliteDb.prepare(`
+    await sqliteDb.prepare(`
       UPDATE gallery_images SET
         title = ?,
         description = ?,
@@ -852,10 +852,10 @@ router.put('/gallery/:id', (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-router.delete('/gallery/:id', (req: AuthenticatedRequest, res: Response) => {
+router.delete('/gallery/:id', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const id = String(req.params.id);
-    sqliteDb.prepare('DELETE FROM gallery_images WHERE id = ?').run(id);
+    await sqliteDb.prepare('DELETE FROM gallery_images WHERE id = ?').run(id);
     res.json({ success: true, message: 'Gallery image deleted successfully' });
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to delete gallery image' });
@@ -863,14 +863,14 @@ router.delete('/gallery/:id', (req: AuthenticatedRequest, res: Response) => {
 });
 
 // Toggle active/inactive for gallery
-router.patch('/gallery/:id/toggle-active', (req: AuthenticatedRequest, res: Response) => {
+router.patch('/gallery/:id/toggle-active', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const id = String(req.params.id);
-    const item = sqliteDb.prepare('SELECT is_active FROM gallery_images WHERE id = ?').get(id) as any;
+    const item = await sqliteDb.prepare('SELECT is_active FROM gallery_images WHERE id = ?').get(id) as any;
     if (!item) return res.status(404).json({ error: 'Image not found' });
 
     const newStatus = item.is_active === 1 ? 0 : 1;
-    sqliteDb.prepare('UPDATE gallery_images SET is_active = ?, updated_at = ? WHERE id = ?').run(
+    await sqliteDb.prepare('UPDATE gallery_images SET is_active = ?, updated_at = ? WHERE id = ?').run(
       newStatus,
       new Date().toISOString(),
       id
@@ -882,14 +882,14 @@ router.patch('/gallery/:id/toggle-active', (req: AuthenticatedRequest, res: Resp
 });
 
 // Toggle featured for gallery
-router.patch('/gallery/:id/toggle-featured', (req: AuthenticatedRequest, res: Response) => {
+router.patch('/gallery/:id/toggle-featured', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const id = String(req.params.id);
-    const item = sqliteDb.prepare('SELECT is_featured FROM gallery_images WHERE id = ?').get(id) as any;
+    const item = await sqliteDb.prepare('SELECT is_featured FROM gallery_images WHERE id = ?').get(id) as any;
     if (!item) return res.status(404).json({ error: 'Image not found' });
 
     const newFeatured = item.is_featured === 1 ? 0 : 1;
-    sqliteDb.prepare('UPDATE gallery_images SET is_featured = ?, updated_at = ? WHERE id = ?').run(
+    await sqliteDb.prepare('UPDATE gallery_images SET is_featured = ?, updated_at = ? WHERE id = ?').run(
       newFeatured,
       new Date().toISOString(),
       id
@@ -903,16 +903,16 @@ router.patch('/gallery/:id/toggle-featured', (req: AuthenticatedRequest, res: Re
 // -------------------------------------------------------------
 // 7. Social Links Manager
 // -------------------------------------------------------------
-router.get('/social', (_req: AuthenticatedRequest, res: Response) => {
+router.get('/social', async (_req: AuthenticatedRequest, res: Response) => {
   try {
-    const links = sqliteDb.prepare('SELECT * FROM social_links').all();
+    const links = await sqliteDb.prepare('SELECT * FROM social_links').all();
     res.json(links);
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to fetch social links' });
   }
 });
 
-router.put('/social', (req: AuthenticatedRequest, res: Response) => {
+router.put('/social', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { links } = req.body; // array of { platform, handle, url, is_active }
     if (!Array.isArray(links)) {
@@ -920,7 +920,7 @@ router.put('/social', (req: AuthenticatedRequest, res: Response) => {
     }
 
     const now = new Date().toISOString();
-    const updateStmt = sqliteDb.prepare(`
+    const updateStmt = await sqliteDb.prepare(`
       INSERT INTO social_links (id, platform, handle, url, is_active, updated_at)
       VALUES (?, ?, ?, ?, ?, ?)
       ON CONFLICT(platform) DO UPDATE SET
@@ -950,16 +950,16 @@ router.put('/social', (req: AuthenticatedRequest, res: Response) => {
 // -------------------------------------------------------------
 // 8. WhatsApp Manager
 // -------------------------------------------------------------
-router.get('/whatsapp', (_req: AuthenticatedRequest, res: Response) => {
+router.get('/whatsapp', async (_req: AuthenticatedRequest, res: Response) => {
   try {
-    const settings = sqliteDb.prepare('SELECT * FROM whatsapp_settings').all();
+    const settings = await sqliteDb.prepare('SELECT * FROM whatsapp_settings').all();
     res.json(settings);
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to fetch WhatsApp settings' });
   }
 });
 
-router.put('/whatsapp', (req: AuthenticatedRequest, res: Response) => {
+router.put('/whatsapp', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { hriday, sunshine } = req.body;
     const now = new Date().toISOString();
@@ -971,7 +971,7 @@ router.put('/whatsapp', (req: AuthenticatedRequest, res: Response) => {
 
     if (hriday) {
       const phone = cleanPhone(hriday.phone_number || '');
-      sqliteDb.prepare(`
+      await sqliteDb.prepare(`
         UPDATE whatsapp_settings SET
           phone_number = ?,
           default_message = ?,
@@ -988,7 +988,7 @@ router.put('/whatsapp', (req: AuthenticatedRequest, res: Response) => {
 
     if (sunshine) {
       const phone = cleanPhone(sunshine.phone_number || '');
-      sqliteDb.prepare(`
+      await sqliteDb.prepare(`
         UPDATE whatsapp_settings SET
           phone_number = ?,
           default_message = ?,
@@ -1013,16 +1013,16 @@ router.put('/whatsapp', (req: AuthenticatedRequest, res: Response) => {
 // -------------------------------------------------------------
 // 9. Contact & Location Manager
 // -------------------------------------------------------------
-router.get('/contact', (_req: AuthenticatedRequest, res: Response) => {
+router.get('/contact', async (_req: AuthenticatedRequest, res: Response) => {
   try {
-    const contact = sqliteDb.prepare('SELECT * FROM contact_information LIMIT 1').get();
+    const contact = await sqliteDb.prepare('SELECT * FROM contact_information LIMIT 1').get();
     res.json(contact);
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to fetch contact information' });
   }
 });
 
-router.put('/contact', (req: AuthenticatedRequest, res: Response) => {
+router.put('/contact', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const {
       venue_name,
@@ -1036,7 +1036,7 @@ router.put('/contact', (req: AuthenticatedRequest, res: Response) => {
 
     const now = new Date().toISOString();
 
-    sqliteDb.prepare(`
+    await sqliteDb.prepare(`
       UPDATE contact_information SET
         venue_name = ?,
         full_address = ?,
@@ -1067,17 +1067,17 @@ router.put('/contact', (req: AuthenticatedRequest, res: Response) => {
 // -------------------------------------------------------------
 // 10. Sunshine Events & Management Agency Manager
 // -------------------------------------------------------------
-router.get('/sunshine', (_req: AuthenticatedRequest, res: Response) => {
+router.get('/sunshine', async (_req: AuthenticatedRequest, res: Response) => {
   try {
-    const agency = sqliteDb.prepare('SELECT * FROM sunshine_agency LIMIT 1').get() as any;
-    const services = sqliteDb.prepare('SELECT * FROM sunshine_services ORDER BY display_order ASC').all();
+    const agency = await sqliteDb.prepare('SELECT * FROM sunshine_agency LIMIT 1').get() as any;
+    const services = await sqliteDb.prepare('SELECT * FROM sunshine_services ORDER BY display_order ASC').all();
     res.json({ agency, services });
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to fetch Sunshine Agency data' });
   }
 });
 
-router.put('/sunshine', (req: AuthenticatedRequest, res: Response) => {
+router.put('/sunshine', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const {
       agency_name,
@@ -1092,7 +1092,7 @@ router.put('/sunshine', (req: AuthenticatedRequest, res: Response) => {
 
     const now = new Date().toISOString();
 
-    sqliteDb.prepare(`
+    await sqliteDb.prepare(`
       UPDATE sunshine_agency SET
         agency_name = ?,
         heading = ?,
@@ -1123,7 +1123,7 @@ router.put('/sunshine', (req: AuthenticatedRequest, res: Response) => {
 });
 
 // Sunshine Services CRUD
-router.post('/sunshine/services', (req: AuthenticatedRequest, res: Response) => {
+router.post('/sunshine/services', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { title, description, icon_name, display_order, is_active } = req.body;
     if (!title || !title.trim()) return res.status(400).json({ error: 'Service title required' });
@@ -1131,7 +1131,7 @@ router.post('/sunshine/services', (req: AuthenticatedRequest, res: Response) => 
     const id = 'ss_' + Date.now();
     const now = new Date().toISOString();
 
-    sqliteDb.prepare(`
+    await sqliteDb.prepare(`
       INSERT INTO sunshine_services (id, title, description, icon_name, display_order, is_active, created_at)
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `).run(
@@ -1150,12 +1150,12 @@ router.post('/sunshine/services', (req: AuthenticatedRequest, res: Response) => 
   }
 });
 
-router.put('/sunshine/services/:id', (req: AuthenticatedRequest, res: Response) => {
+router.put('/sunshine/services/:id', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const id = String(req.params.id);
     const { title, description, icon_name, display_order, is_active } = req.body;
 
-    sqliteDb.prepare(`
+    await sqliteDb.prepare(`
       UPDATE sunshine_services SET
         title = ?,
         description = ?,
@@ -1178,10 +1178,10 @@ router.put('/sunshine/services/:id', (req: AuthenticatedRequest, res: Response) 
   }
 });
 
-router.delete('/sunshine/services/:id', (req: AuthenticatedRequest, res: Response) => {
+router.delete('/sunshine/services/:id', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const id = String(req.params.id);
-    sqliteDb.prepare('DELETE FROM sunshine_services WHERE id = ?').run(id);
+    await sqliteDb.prepare('DELETE FROM sunshine_services WHERE id = ?').run(id);
     res.json({ success: true });
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to delete agency service' });
@@ -1191,31 +1191,31 @@ router.delete('/sunshine/services/:id', (req: AuthenticatedRequest, res: Respons
 // -------------------------------------------------------------
 // 11. Enquiries Management
 // -------------------------------------------------------------
-router.get('/enquiries', (_req: AuthenticatedRequest, res: Response) => {
+router.get('/enquiries', async (_req: AuthenticatedRequest, res: Response) => {
   try {
-    const enquiries = sqliteDb.prepare('SELECT * FROM enquiries ORDER BY created_at DESC').all();
+    const enquiries = await sqliteDb.prepare('SELECT * FROM enquiries ORDER BY created_at DESC').all();
     res.json(enquiries);
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to fetch enquiries' });
   }
 });
 
-router.patch('/enquiries/:id/status', (req: AuthenticatedRequest, res: Response) => {
+router.patch('/enquiries/:id/status', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const id = String(req.params.id);
     const { status } = req.body;
 
-    sqliteDb.prepare('UPDATE enquiries SET status = ? WHERE id = ?').run(status, id);
+    await sqliteDb.prepare('UPDATE enquiries SET status = ? WHERE id = ?').run(status, id);
     res.json({ success: true });
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to update enquiry status' });
   }
 });
 
-router.delete('/enquiries/:id', (req: AuthenticatedRequest, res: Response) => {
+router.delete('/enquiries/:id', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const id = String(req.params.id);
-    sqliteDb.prepare('DELETE FROM enquiries WHERE id = ?').run(id);
+    await sqliteDb.prepare('DELETE FROM enquiries WHERE id = ?').run(id);
     res.json({ success: true });
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to delete enquiry' });

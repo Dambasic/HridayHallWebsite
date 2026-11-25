@@ -1,10 +1,10 @@
 import bcrypt from 'bcryptjs';
 import { sqliteDb, initDatabase } from './database.js';
 
-export function seedDatabase() {
+export async function seedDatabase() {
   initDatabase();
 
-  const userCount = (sqliteDb.prepare('SELECT COUNT(*) as count FROM admin_users').get() as { count: number }).count;
+  const userCount = (await sqliteDb.prepare('SELECT COUNT(*) as count FROM admin_users').get() as { count: number }).count;
   if (userCount > 0) {
     console.log('Database already has data. Skipping seed.');
     return;
@@ -15,7 +15,7 @@ export function seedDatabase() {
 
   // 1. Admin User
   const defaultPasswordHash = bcrypt.hashSync('HridayAdmin@2026', 10);
-  sqliteDb.prepare(`
+  await sqliteDb.prepare(`
     INSERT INTO admin_users (id, username, email, password_hash, role, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `).run(
@@ -29,7 +29,7 @@ export function seedDatabase() {
   );
 
   // 2. Website Settings
-  sqliteDb.prepare(`
+  await sqliteDb.prepare(`
     INSERT INTO website_settings (
       id, site_title, tagline, logo_url, favicon_url, seo_title, seo_description,
       hero_heading, hero_subtitle, hero_trust_text, hero_bg_image, section_visibility, updated_at
@@ -59,7 +59,7 @@ export function seedDatabase() {
   );
 
   // 3. About Content
-  sqliteDb.prepare(`
+  await sqliteDb.prepare(`
     INSERT INTO about_content (
       id, heading, description, venue_image,
       highlight_card_1_title, highlight_card_1_desc,
@@ -155,7 +155,7 @@ export function seedDatabase() {
   `);
 
   for (const s of servicesData) {
-    insertService.run(s.id, s.title, s.description, s.image_url, s.category, s.display_order, now, now);
+    await insertService.run(s.id, s.title, s.description, s.image_url, s.category, s.display_order, now, now);
   }
 
   // 5. Gallery Images (12 rich banquet images categorized)
@@ -276,7 +276,7 @@ export function seedDatabase() {
   `);
 
   for (const g of galleryData) {
-    insertGallery.run(g.id, g.title, g.description, g.image_url, g.category, g.display_order, g.is_featured, now, now);
+    await insertGallery.run(g.id, g.title, g.description, g.image_url, g.category, g.display_order, g.is_featured, now, now);
   }
 
   // 6. WhatsApp Settings (Configurable, phone numbers initially empty)
@@ -294,18 +294,18 @@ Thank you!`;
 
 I visited your website and would like to know more about your digital marketing and business promotion services. Please share your service details and quotation.`;
 
-  sqliteDb.prepare(`
+  await sqliteDb.prepare(`
     INSERT INTO whatsapp_settings (id, entity, phone_number, default_message, is_active, updated_at)
     VALUES (?, ?, ?, ?, 1, ?)
   `).run('wa_hriday', 'hriday', '', defaultHridayMsg, now);
 
-  sqliteDb.prepare(`
+  await sqliteDb.prepare(`
     INSERT INTO whatsapp_settings (id, entity, phone_number, default_message, is_active, updated_at)
     VALUES (?, ?, ?, ?, 1, ?)
   `).run('wa_sunshine', 'sunshine', '', defaultSunshineMsg, now);
 
   // 7. Sunshine Agency
-  sqliteDb.prepare(`
+  await sqliteDb.prepare(`
     INSERT INTO sunshine_agency (
       id, agency_name, heading, supporting_text, description,
       logo_url, banner_image_url, attribution_statement, is_visible, updated_at
@@ -338,11 +338,11 @@ I visited your website and would like to know more about your digital marketing 
   `);
 
   for (const ss of sunshineServicesData) {
-    insertSunshineService.run(ss.id, ss.title, ss.description, ss.icon_name, ss.display_order, now);
+    await insertSunshineService.run(ss.id, ss.title, ss.description, ss.icon_name, ss.display_order, now);
   }
 
   // 9. Contact Information (Editable placeholders)
-  sqliteDb.prepare(`
+  await sqliteDb.prepare(`
     INSERT INTO contact_information (
       id, venue_name, full_address, phone_number, email_address,
       opening_hours, google_maps_embed_url, google_maps_directions_url, updated_at
@@ -360,12 +360,12 @@ I visited your website and would like to know more about your digital marketing 
   );
 
   // 10. Social Links
-  sqliteDb.prepare(`
+  await sqliteDb.prepare(`
     INSERT INTO social_links (id, platform, handle, url, is_active, updated_at)
     VALUES (?, ?, ?, ?, 1, ?)
   `).run('social_ig', 'instagram', '@hridaybanquetspineroad', 'https://www.instagram.com/hridaybanquetspineroad/', now);
 
-  sqliteDb.prepare(`
+  await sqliteDb.prepare(`
     INSERT INTO social_links (id, platform, handle, url, is_active, updated_at)
     VALUES (?, ?, ?, ?, 1, ?)
   `).run('social_fb', 'facebook', 'Hriday Banquet Hall', 'https://www.facebook.com/share/18q7iCrgxa/?mibextid=wwXIfr', now);

@@ -8,7 +8,7 @@ const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'hriday_banquet_super_secret_jwt_key_2026';
 
 // POST /api/auth/login
-router.post('/login', (req: Request, res: Response) => {
+router.post('/login', async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
 
@@ -17,11 +17,11 @@ router.post('/login', (req: Request, res: Response) => {
     }
 
     // Search by username or email
-    const user = sqliteDb.prepare(`
+    const user = (await sqliteDb.prepare(`
       SELECT * FROM admin_users 
       WHERE username = ? OR email = ? 
       LIMIT 1
-    `).get(username.trim().toLowerCase(), username.trim().toLowerCase()) as any;
+    `).get(username.trim().toLowerCase(), username.trim().toLowerCase())) as any;
 
     if (!user) {
       return res.status(401).json({ error: 'Invalid username/email or password' });
@@ -60,13 +60,13 @@ router.post('/login', (req: Request, res: Response) => {
 });
 
 // GET /api/auth/me
-router.get('/me', requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
+router.get('/me', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const user = sqliteDb.prepare('SELECT id, username, email, role, created_at, updated_at FROM admin_users WHERE id = ?').get(req.user.id);
+    const user = await sqliteDb.prepare('SELECT id, username, email, role, created_at, updated_at FROM admin_users WHERE id = ?').get(req.user.id);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -78,7 +78,7 @@ router.get('/me', requireAdminAuth, (req: AuthenticatedRequest, res: Response) =
 });
 
 // POST /api/auth/change-password
-router.post('/change-password', requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
+router.post('/change-password', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) {
       return res.status(401).json({ error: 'Unauthorized' });
@@ -93,7 +93,7 @@ router.post('/change-password', requireAdminAuth, (req: AuthenticatedRequest, re
       return res.status(400).json({ error: 'New password must be at least 8 characters long' });
     }
 
-    const user = sqliteDb.prepare('SELECT * FROM admin_users WHERE id = ?').get(req.user.id) as any;
+    const user = (await sqliteDb.prepare('SELECT * FROM admin_users WHERE id = ?').get(req.user.id)) as any;
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -106,7 +106,7 @@ router.post('/change-password', requireAdminAuth, (req: AuthenticatedRequest, re
     const newHash = bcrypt.hashSync(newPassword, 10);
     const now = new Date().toISOString();
 
-    sqliteDb.prepare('UPDATE admin_users SET password_hash = ?, updated_at = ? WHERE id = ?').run(
+    await sqliteDb.prepare('UPDATE admin_users SET password_hash = ?, updated_at = ? WHERE id = ?').run(
       newHash,
       now,
       req.user.id

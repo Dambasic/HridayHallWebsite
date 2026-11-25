@@ -39,35 +39,90 @@ if (isVercel) {
 }
 
 export interface PreparedStatementLike {
-  run: (...params: any[]) => any;
-  get: (...params: any[]) => any;
-  all: (...params: any[]) => any[];
+  run: (...params: any[]) => Promise<any>;
+  get: (...params: any[]) => Promise<any>;
+  all: (...params: any[]) => Promise<any[]>;
 }
 
 export interface SqliteDbLike {
-  exec: (sql: string) => void;
+  exec: (sql: string) => Promise<void>;
   prepare: (sql: string) => PreparedStatementLike;
 }
 
 let activeDb: SqliteDbLike | null = null;
-export let activeDbEngine: 'node:sqlite' | 'sql.js' | 'uninitialized' = 'uninitialized';
+export let activeDbEngine: 'turso' | 'node:sqlite' | 'sql.js' | 'uninitialized' = 'uninitialized';
 
 function normalizeParams(params: any[]): any[] {
   return params.map((p) => (p === undefined ? null : p));
 }
 
-export async function initDatabaseEngine(): Promise<'node:sqlite' | 'sql.js'> {
+export async function initDatabaseEngine(): Promise<'turso' | 'node:sqlite' | 'sql.js'> {
   if (activeDb && activeDbEngine !== 'uninitialized') {
     return activeDbEngine;
   }
 
-  // Prefer native node:sqlite locally on Node 22.5+/24; on Vercel fall back cleanly to pure WASM sql.js
+  // 1. Turso Cloud SQLite (libSQL) when TURSO_DATABASE_URL is configured
+  const tursoUrl = process.env.TURSO_DATABASE_URL?.trim();
+  if (tursoUrl) {
+    const { createClient: createLibsqlClient } = await import('@libsql/client');
+    const client = createLibsqlClient({
+      url: tursoUrl,
+      authToken: process.env.TURSO_AUTH_TOKEN?.trim(),
+    });
+    await client.execute('PRAGMA foreign_keys = ON;');
+
+    activeDb = {
+      async exec(sql: string) {
+        await client.executeMultiple(sql);
+      },
+      prepare(sql: string): PreparedStatementLike {
+        return {
+          async run(...params: any[]) {
+            const res = await client.execute({ sql, args: normalizeParams(params) });
+            return { changes: res.rowsAffected };
+          },
+          async get(...params: any[]) {
+            const res = await client.execute({ sql, args: normalizeParams(params) });
+            return res.rows[0] ? { ...res.rows[0] } : undefined;
+          },
+          async all(...params: any[]) {
+            const res = await client.execute({ sql, args: normalizeParams(params) });
+            return res.rows.map((r) => ({ ...r }));
+          },
+        };
+      },
+    };
+
+    activeDbEngine = 'turso';
+    console.log('☁️ Connected to Turso Cloud SQLite.');
+    return activeDbEngine;
+  }
+
+  // 2. Local native node:sqlite on Node 22.5+/24
   if (!isVercel) {
     try {
       const { DatabaseSync } = await import('node:sqlite');
       const nativeDb = new DatabaseSync(dbFilePath);
       nativeDb.exec('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
-      activeDb = nativeDb as unknown as SqliteDbLike;
+      activeDb = {
+        async exec(sql: string) {
+          nativeDb.exec(sql);
+        },
+        prepare(sql: string): PreparedStatementLike {
+          const stmt = nativeDb.prepare(sql);
+          return {
+            async run(...params: any[]) {
+              return stmt.run(...normalizeParams(params));
+            },
+            async get(...params: any[]) {
+              return stmt.get(...normalizeParams(params));
+            },
+            async all(...params: any[]) {
+              return stmt.all(...normalizeParams(params));
+            },
+          };
+        },
+      };
       activeDbEngine = 'node:sqlite';
       return activeDbEngine;
     } catch (err) {
@@ -75,6 +130,7 @@ export async function initDatabaseEngine(): Promise<'node:sqlite' | 'sql.js'> {
     }
   }
 
+  // 3. Pure WASM sql.js fallback (works on any Vercel serverless container)
   const sqlJsModule = await import('sql.js/dist/sql-wasm-inline.js');
   const initSqlJs = (sqlJsModule.default || sqlJsModule) as any;
   const SQL = await initSqlJs();
@@ -93,13 +149,13 @@ export async function initDatabaseEngine(): Promise<'node:sqlite' | 'sql.js'> {
   };
 
   activeDb = {
-    exec(sql: string) {
+    async exec(sql: string) {
       wasmDb.exec(sql);
       persist();
     },
     prepare(sql: string): PreparedStatementLike {
       return {
-        run(...params: any[]) {
+        async run(...params: any[]) {
           const stmt = wasmDb.prepare(sql);
           try {
             stmt.run(normalizeParams(params));
@@ -109,7 +165,7 @@ export async function initDatabaseEngine(): Promise<'node:sqlite' | 'sql.js'> {
             stmt.free();
           }
         },
-        get(...params: any[]) {
+        async get(...params: any[]) {
           const stmt = wasmDb.prepare(sql);
           try {
             stmt.bind(normalizeParams(params));
@@ -118,7 +174,7 @@ export async function initDatabaseEngine(): Promise<'node:sqlite' | 'sql.js'> {
             stmt.free();
           }
         },
-        all(...params: any[]) {
+        async all(...params: any[]) {
           const stmt = wasmDb.prepare(sql);
           const rows: any[] = [];
           try {
@@ -140,7 +196,7 @@ export async function initDatabaseEngine(): Promise<'node:sqlite' | 'sql.js'> {
 }
 
 export const sqliteDb: SqliteDbLike = {
-  exec(sql: string) {
+  async exec(sql: string) {
     if (!activeDb) {
       throw new Error('Database engine not initialized yet');
     }
@@ -168,8 +224,8 @@ if (supabaseUrl && supabaseKey) {
   }
 }
 
-export function initDatabase() {
-  sqliteDb.exec(`
+export async function initDatabase() {
+  await sqliteDb.exec(`
     CREATE TABLE IF NOT EXISTS admin_users (
       id TEXT PRIMARY KEY,
       username TEXT UNIQUE NOT NULL,
@@ -359,32 +415,32 @@ export function initDatabase() {
 
   // Migrate services table columns if table was created previously without them
   try {
-    const tableCols = sqliteDb.prepare('PRAGMA table_info(services)').all() as any[];
+    const tableCols = (await sqliteDb.prepare('PRAGMA table_info(services)').all()) as any[];
     const colNames = tableCols.map((c) => c.name);
 
     if (!colNames.includes('slug')) {
-      sqliteDb.exec("ALTER TABLE services ADD COLUMN slug TEXT NOT NULL DEFAULT ''");
+      await sqliteDb.exec("ALTER TABLE services ADD COLUMN slug TEXT NOT NULL DEFAULT ''");
     }
     if (!colNames.includes('short_description')) {
-      sqliteDb.exec("ALTER TABLE services ADD COLUMN short_description TEXT NOT NULL DEFAULT ''");
+      await sqliteDb.exec("ALTER TABLE services ADD COLUMN short_description TEXT NOT NULL DEFAULT ''");
     }
     if (!colNames.includes('full_description')) {
-      sqliteDb.exec("ALTER TABLE services ADD COLUMN full_description TEXT NOT NULL DEFAULT ''");
+      await sqliteDb.exec("ALTER TABLE services ADD COLUMN full_description TEXT NOT NULL DEFAULT ''");
     }
     if (!colNames.includes('features')) {
-      sqliteDb.exec("ALTER TABLE services ADD COLUMN features TEXT NOT NULL DEFAULT '[]'");
+      await sqliteDb.exec("ALTER TABLE services ADD COLUMN features TEXT NOT NULL DEFAULT '[]'");
     }
 
-    const celebrationCols = sqliteDb.prepare('PRAGMA table_info(celebrations)').all() as any[];
+    const celebrationCols = (await sqliteDb.prepare('PRAGMA table_info(celebrations)').all()) as any[];
     const celebrationColNames = celebrationCols.map((c) => c.name);
     if (!celebrationColNames.includes('service_slug')) {
-      sqliteDb.exec("ALTER TABLE celebrations ADD COLUMN service_slug TEXT NOT NULL DEFAULT ''");
+      await sqliteDb.exec("ALTER TABLE celebrations ADD COLUMN service_slug TEXT NOT NULL DEFAULT ''");
     }
 
-    const instaMediaCols = sqliteDb.prepare('PRAGMA table_info(service_instagram_media)').all() as any[];
+    const instaMediaCols = (await sqliteDb.prepare('PRAGMA table_info(service_instagram_media)').all()) as any[];
     const instaColNames = instaMediaCols.map((c) => c.name);
     if (!instaColNames.includes('cover_image')) {
-      sqliteDb.exec("ALTER TABLE service_instagram_media ADD COLUMN cover_image TEXT NOT NULL DEFAULT ''");
+      await sqliteDb.exec("ALTER TABLE service_instagram_media ADD COLUMN cover_image TEXT NOT NULL DEFAULT ''");
     }
   } catch (err) {
     console.warn('Column check error:', err);
@@ -392,7 +448,7 @@ export function initDatabase() {
 
   // Ensure default logo is set to /hriday-logo.png
   try {
-    sqliteDb.exec(`
+    await sqliteDb.exec(`
       UPDATE website_settings 
       SET logo_url = '/hriday-logo.png', favicon_url = '/hriday-logo.png' 
       WHERE logo_url = '' OR logo_url = '/favicon.svg'

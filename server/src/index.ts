@@ -40,9 +40,9 @@ async function ensureInitialized(): Promise<void> {
   if (!startupPromise) {
     startupPromise = (async () => {
       await initDatabaseEngine();
-      initDatabase();
-      seedDatabase();
-      runMigrationsAndSeed();
+      await initDatabase();
+      await seedDatabase();
+      await runMigrationsAndSeed();
     })().catch((err) => {
       startupPromise = null;
       throw err;
@@ -99,14 +99,14 @@ Sitemap: https://hridaybanquethall.com/sitemap.xml
 `);
 });
 
-app.get('/sitemap.xml', (_req, res) => {
+app.get('/sitemap.xml', async (_req, res) => {
   try {
     const baseUrl = 'https://hridaybanquethall.com';
     const now = new Date().toISOString();
 
-    const services = sqliteDb
+    const services = (await sqliteDb
       .prepare('SELECT slug, updated_at FROM services WHERE is_active = 1 ORDER BY display_order ASC')
-      .all() as Array<{ slug: string; updated_at?: string }>;
+      .all()) as Array<{ slug: string; updated_at?: string }>;
 
     let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n`;

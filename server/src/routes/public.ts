@@ -4,20 +4,20 @@ import { sqliteDb } from '../db/database.js';
 const router = Router();
 
 // GET /api/public/content - Unified payload for fast, SSR-friendly or single-query rendering
-router.get('/content', (_req: Request, res: Response) => {
+router.get('/content', async (_req: Request, res: Response) => {
   try {
-    const settingsRow = sqliteDb.prepare('SELECT * FROM website_settings LIMIT 1').get() as any;
-    const aboutRow = sqliteDb.prepare('SELECT * FROM about_content LIMIT 1').get() as any;
-    const servicesRows = sqliteDb.prepare('SELECT * FROM services WHERE is_active = 1 ORDER BY display_order ASC, created_at ASC').all() as any[];
-    const galleryRows = sqliteDb.prepare('SELECT * FROM gallery_images WHERE is_active = 1 ORDER BY display_order ASC, created_at ASC').all() as any[];
-    const socialRows = sqliteDb.prepare('SELECT * FROM social_links WHERE is_active = 1').all() as any[];
-    const whatsappRows = sqliteDb.prepare('SELECT * FROM whatsapp_settings WHERE is_active = 1').all() as any[];
-    const contactRow = sqliteDb.prepare('SELECT * FROM contact_information LIMIT 1').get() as any;
-    const sunshineRow = sqliteDb.prepare('SELECT * FROM sunshine_agency LIMIT 1').get() as any;
-    const sunshineServicesRows = sqliteDb.prepare('SELECT * FROM sunshine_services WHERE is_active = 1 ORDER BY display_order ASC').all() as any[];
+    const settingsRow = (await sqliteDb.prepare('SELECT * FROM website_settings LIMIT 1').get()) as any;
+    const aboutRow = (await sqliteDb.prepare('SELECT * FROM about_content LIMIT 1').get()) as any;
+    const servicesRows = (await sqliteDb.prepare('SELECT * FROM services WHERE is_active = 1 ORDER BY display_order ASC, created_at ASC').all()) as any[];
+    const galleryRows = (await sqliteDb.prepare('SELECT * FROM gallery_images WHERE is_active = 1 ORDER BY display_order ASC, created_at ASC').all()) as any[];
+    const socialRows = (await sqliteDb.prepare('SELECT * FROM social_links WHERE is_active = 1').all()) as any[];
+    const whatsappRows = (await sqliteDb.prepare('SELECT * FROM whatsapp_settings WHERE is_active = 1').all()) as any[];
+    const contactRow = (await sqliteDb.prepare('SELECT * FROM contact_information LIMIT 1').get()) as any;
+    const sunshineRow = (await sqliteDb.prepare('SELECT * FROM sunshine_agency LIMIT 1').get()) as any;
+    const sunshineServicesRows = (await sqliteDb.prepare('SELECT * FROM sunshine_services WHERE is_active = 1 ORDER BY display_order ASC').all()) as any[];
     
     // Celebrations & Featured Celebrations
-    const celebrationsRows = sqliteDb.prepare('SELECT * FROM celebrations WHERE is_active = 1 ORDER BY featured_order ASC, created_at ASC').all() as any[];
+    const celebrationsRows = (await sqliteDb.prepare('SELECT * FROM celebrations WHERE is_active = 1 ORDER BY featured_order ASC, created_at ASC').all()) as any[];
     const featuredCelebrationsRows = celebrationsRows.filter((c) => c.is_featured === 1);
 
     // Parse section visibility
@@ -59,7 +59,7 @@ router.get('/content', (_req: Request, res: Response) => {
 });
 
 // GET /api/public/gallery - Categorized gallery
-router.get('/gallery', (req: Request, res: Response) => {
+router.get('/gallery', async (req: Request, res: Response) => {
   try {
     const category = req.query.category as string;
     let query = 'SELECT * FROM gallery_images WHERE is_active = 1';
@@ -71,7 +71,7 @@ router.get('/gallery', (req: Request, res: Response) => {
     }
 
     query += ' ORDER BY display_order ASC, created_at ASC';
-    const images = sqliteDb.prepare(query).all(...params);
+    const images = await sqliteDb.prepare(query).all(...params);
     res.json(images);
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to retrieve gallery images' });
@@ -79,9 +79,9 @@ router.get('/gallery', (req: Request, res: Response) => {
 });
 
 // GET /api/public/services
-router.get('/services', (_req: Request, res: Response) => {
+router.get('/services', async (_req: Request, res: Response) => {
   try {
-    const services = sqliteDb.prepare('SELECT * FROM services WHERE is_active = 1 ORDER BY display_order ASC').all();
+    const services = await sqliteDb.prepare('SELECT * FROM services WHERE is_active = 1 ORDER BY display_order ASC').all();
     res.json(services);
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to retrieve services' });
@@ -89,14 +89,14 @@ router.get('/services', (_req: Request, res: Response) => {
 });
 
 // GET /api/public/services/:slug
-router.get('/services/:slug', (req: Request, res: Response) => {
+router.get('/services/:slug', async (req: Request, res: Response) => {
   try {
     const slug = req.params.slug as string;
-    const service = sqliteDb.prepare(`
+    const service = (await sqliteDb.prepare(`
       SELECT * FROM services 
       WHERE (slug = ? OR id = ?) AND is_active = 1 
       LIMIT 1
-    `).get(slug, slug) as any;
+    `).get(slug, slug)) as any;
 
     if (!service) {
       return res.status(404).json({ error: 'Service not found' });
@@ -112,13 +112,13 @@ router.get('/services/:slug', (req: Request, res: Response) => {
       }
     }
 
-    const gallery = sqliteDb.prepare(`
+    const gallery = await sqliteDb.prepare(`
       SELECT * FROM service_gallery 
       WHERE service_id = ? 
       ORDER BY display_order ASC, created_at ASC
     `).all(service.id);
 
-    const instagramMedia = sqliteDb.prepare(`
+    const instagramMedia = await sqliteDb.prepare(`
       SELECT * FROM service_instagram_media 
       WHERE service_id = ? 
       ORDER BY display_order ASC, created_at ASC
@@ -137,7 +137,7 @@ router.get('/services/:slug', (req: Request, res: Response) => {
 });
 
 // GET /api/public/celebrations
-router.get('/celebrations', (req: Request, res: Response) => {
+router.get('/celebrations', async (req: Request, res: Response) => {
   try {
     const featuredOnly = req.query.featured === '1' || req.query.featured === 'true';
     let query = 'SELECT * FROM celebrations WHERE is_active = 1';
@@ -145,7 +145,7 @@ router.get('/celebrations', (req: Request, res: Response) => {
       query += ' AND is_featured = 1';
     }
     query += ' ORDER BY featured_order ASC, created_at ASC';
-    const celebrations = sqliteDb.prepare(query).all();
+    const celebrations = await sqliteDb.prepare(query).all();
     res.json(celebrations);
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to retrieve celebrations' });
@@ -153,7 +153,7 @@ router.get('/celebrations', (req: Request, res: Response) => {
 });
 
 // POST /api/public/enquiry
-router.post('/enquiry', (req: Request, res: Response) => {
+router.post('/enquiry', async (req: Request, res: Response) => {
   try {
     const { name, phone, email, event_type, event_date, guest_count, message } = req.body;
 
@@ -167,7 +167,7 @@ router.post('/enquiry', (req: Request, res: Response) => {
     const id = 'enq_' + Date.now() + '_' + Math.round(Math.random() * 1000);
     const now = new Date().toISOString();
 
-    sqliteDb.prepare(`
+    await sqliteDb.prepare(`
       INSERT INTO enquiries (id, name, phone, email, event_type, event_date, guest_count, message, status, created_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'new', ?)
     `).run(
@@ -194,7 +194,7 @@ router.post('/enquiry', (req: Request, res: Response) => {
 });
 
 // POST /api/public/analytics/track
-router.post('/analytics/track', (req: Request, res: Response) => {
+router.post('/analytics/track', async (req: Request, res: Response) => {
   try {
     const { event_type, session_id, page_url, page_title, placement, metadata } = req.body;
     if (!event_type || !session_id) {
@@ -205,7 +205,7 @@ router.post('/analytics/track', (req: Request, res: Response) => {
     const now = new Date().toISOString();
     const metaStr = typeof metadata === 'string' ? metadata : JSON.stringify(metadata || {});
 
-    sqliteDb.prepare(`
+    await sqliteDb.prepare(`
       INSERT INTO analytics_events (id, event_type, session_id, page_url, page_title, placement, metadata, created_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `).run(

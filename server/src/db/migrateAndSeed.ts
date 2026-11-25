@@ -1,32 +1,32 @@
 import { sqliteDb } from './database.js';
 
-export function runMigrationsAndSeed() {
+export async function runMigrationsAndSeed() {
   console.log('🔄 Running database migrations and content synchronization...');
   const now = new Date().toISOString();
 
   // 1. Ensure services table columns exist
   try {
-    const tableCols = sqliteDb.prepare('PRAGMA table_info(services)').all() as any[];
+    const tableCols = await sqliteDb.prepare('PRAGMA table_info(services)').all() as any[];
     const colNames = tableCols.map((c) => c.name);
 
     if (!colNames.includes('slug')) {
-      sqliteDb.exec("ALTER TABLE services ADD COLUMN slug TEXT NOT NULL DEFAULT ''");
+      await sqliteDb.exec("ALTER TABLE services ADD COLUMN slug TEXT NOT NULL DEFAULT ''");
     }
     if (!colNames.includes('short_description')) {
-      sqliteDb.exec("ALTER TABLE services ADD COLUMN short_description TEXT NOT NULL DEFAULT ''");
+      await sqliteDb.exec("ALTER TABLE services ADD COLUMN short_description TEXT NOT NULL DEFAULT ''");
     }
     if (!colNames.includes('full_description')) {
-      sqliteDb.exec("ALTER TABLE services ADD COLUMN full_description TEXT NOT NULL DEFAULT ''");
+      await sqliteDb.exec("ALTER TABLE services ADD COLUMN full_description TEXT NOT NULL DEFAULT ''");
     }
     if (!colNames.includes('features')) {
-      sqliteDb.exec("ALTER TABLE services ADD COLUMN features TEXT NOT NULL DEFAULT '[]'");
+      await sqliteDb.exec("ALTER TABLE services ADD COLUMN features TEXT NOT NULL DEFAULT '[]'");
     }
   } catch (err) {
     console.warn('Migration error for services columns:', err);
   }
 
   // 2. Ensure celebrations table exists and has service_slug column
-  sqliteDb.exec(`
+  await sqliteDb.exec(`
     CREATE TABLE IF NOT EXISTS celebrations (
       id TEXT PRIMARY KEY,
       title TEXT NOT NULL,
@@ -44,17 +44,17 @@ export function runMigrationsAndSeed() {
   `);
 
   try {
-    const celCols = sqliteDb.prepare('PRAGMA table_info(celebrations)').all() as any[];
+    const celCols = await sqliteDb.prepare('PRAGMA table_info(celebrations)').all() as any[];
     const celColNames = celCols.map((c) => c.name);
     if (!celColNames.includes('service_slug')) {
-      sqliteDb.exec("ALTER TABLE celebrations ADD COLUMN service_slug TEXT NOT NULL DEFAULT ''");
+      await sqliteDb.exec("ALTER TABLE celebrations ADD COLUMN service_slug TEXT NOT NULL DEFAULT ''");
     }
   } catch (err) {
     console.warn('Migration error for celebrations columns:', err);
   }
 
   // 3. Ensure service_gallery table exists
-  sqliteDb.exec(`
+  await sqliteDb.exec(`
     CREATE TABLE IF NOT EXISTS service_gallery (
       id TEXT PRIMARY KEY,
       service_id TEXT NOT NULL,
@@ -66,7 +66,7 @@ export function runMigrationsAndSeed() {
   `);
 
   // 4. Ensure service_instagram_media table exists
-  sqliteDb.exec(`
+  await sqliteDb.exec(`
     CREATE TABLE IF NOT EXISTS service_instagram_media (
       id TEXT PRIMARY KEY,
       service_id TEXT NOT NULL,
@@ -80,9 +80,9 @@ export function runMigrationsAndSeed() {
     );
   `);
   try {
-    const instaCols = sqliteDb.prepare('PRAGMA table_info(service_instagram_media)').all() as any[];
+    const instaCols = await sqliteDb.prepare('PRAGMA table_info(service_instagram_media)').all() as any[];
     if (!instaCols.some((c) => c.name === 'cover_image')) {
-      sqliteDb.exec("ALTER TABLE service_instagram_media ADD COLUMN cover_image TEXT NOT NULL DEFAULT ''");
+      await sqliteDb.exec("ALTER TABLE service_instagram_media ADD COLUMN cover_image TEXT NOT NULL DEFAULT ''");
     }
   } catch (e) {
     // ignore
@@ -230,9 +230,9 @@ export function runMigrationsAndSeed() {
   ];
 
   for (const s of defaultServices) {
-    const existing = sqliteDb.prepare('SELECT id, slug FROM services WHERE id = ?').get(s.id) as any;
+    const existing = await sqliteDb.prepare('SELECT id, slug FROM services WHERE id = ?').get(s.id) as any;
     if (existing) {
-      sqliteDb.prepare(`
+      await sqliteDb.prepare(`
         UPDATE services SET
           slug = ?,
           short_description = ?,
@@ -242,7 +242,7 @@ export function runMigrationsAndSeed() {
         WHERE id = ?
       `).run(s.slug, s.short_description, s.full_description, s.features, now, s.id);
     } else {
-      sqliteDb.prepare(`
+      await sqliteDb.prepare(`
         INSERT INTO services (id, title, slug, description, short_description, full_description, features, image_url, category, display_order, is_active, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)
       `).run(s.id, s.title, s.slug, s.short_description, s.short_description, s.full_description, s.features, s.image_url, s.category, s.display_order, now, now);
@@ -250,7 +250,7 @@ export function runMigrationsAndSeed() {
   }
 
   // 6. Seed celebrations if empty or fewer than 6
-  const celebrationCount = (sqliteDb.prepare('SELECT COUNT(*) as count FROM celebrations').get() as { count: number }).count;
+  const celebrationCount = (await sqliteDb.prepare('SELECT COUNT(*) as count FROM celebrations').get() as { count: number }).count;
   if (celebrationCount === 0) {
     console.log('🎉 Seeding celebrations...');
     const celebrationsData = [
@@ -322,7 +322,7 @@ export function runMigrationsAndSeed() {
     `);
 
     for (const c of celebrationsData) {
-      insertCelebration.run(c.id, c.title, c.description, c.image_url, c.instagram_url, c.tag, c.is_featured, c.featured_order, now, now);
+      await insertCelebration.run(c.id, c.title, c.description, c.image_url, c.instagram_url, c.tag, c.is_featured, c.featured_order, now, now);
     }
   }
 
@@ -335,7 +335,7 @@ export function runMigrationsAndSeed() {
     ['cel_5', 'corporate-events'],
     ['cel_6', 'family-gatherings'],
   ];
-  const updateSlugStmt = sqliteDb.prepare(`
+  const updateSlugStmt = await sqliteDb.prepare(`
     UPDATE celebrations SET service_slug = ? WHERE id = ? AND (service_slug = '' OR service_slug IS NULL)
   `);
   for (const [celId, slug] of defaultSlugMappings) {
@@ -343,7 +343,7 @@ export function runMigrationsAndSeed() {
   }
 
   // 7. Seed service_gallery if empty
-  const serviceGalleryCount = (sqliteDb.prepare('SELECT COUNT(*) as count FROM service_gallery').get() as { count: number }).count;
+  const serviceGalleryCount = (await sqliteDb.prepare('SELECT COUNT(*) as count FROM service_gallery').get() as { count: number }).count;
   if (serviceGalleryCount === 0) {
     console.log('📸 Seeding service galleries...');
     const serviceGalleries: Record<string, Array<{ url: string; caption: string }>> = {
@@ -396,14 +396,15 @@ export function runMigrationsAndSeed() {
     `);
 
     for (const [srvId, photos] of Object.entries(serviceGalleries)) {
-      photos.forEach((photo, idx) => {
-        insertGallery.run(`sg_${srvId}_${idx + 1}`, srvId, photo.url, photo.caption, idx + 1, now);
-      });
+      for (let idx = 0; idx < photos.length; idx++) {
+        const photo = photos[idx];
+        await insertGallery.run(`sg_${srvId}_${idx + 1}`, srvId, photo.url, photo.caption, idx + 1, now);
+      }
     }
   }
 
   // 8. Seed service_instagram_media if empty
-  const serviceInstaCount = (sqliteDb.prepare('SELECT COUNT(*) as count FROM service_instagram_media').get() as { count: number }).count;
+  const serviceInstaCount = (await sqliteDb.prepare('SELECT COUNT(*) as count FROM service_instagram_media').get() as { count: number }).count;
   if (serviceInstaCount === 0) {
     console.log('📱 Seeding service Instagram media...');
     const instagramMediaData = [
@@ -487,13 +488,13 @@ export function runMigrationsAndSeed() {
     `);
 
     for (const m of instagramMediaData) {
-      insertMedia.run(m.id, m.service_id, m.instagram_url, m.media_type, m.title, m.caption, m.display_order, now);
+      await insertMedia.run(m.id, m.service_id, m.instagram_url, m.media_type, m.title, m.caption, m.display_order, now);
     }
   }
 
   // 9. Ensure website settings has logo_url set to /hriday-logo.png
   try {
-    sqliteDb.exec(`
+    await sqliteDb.exec(`
       UPDATE website_settings 
       SET logo_url = '/hriday-logo.png', favicon_url = '/hriday-logo.png'
       WHERE logo_url = '' OR logo_url = '/favicon.svg' OR logo_url IS NULL
@@ -503,7 +504,7 @@ export function runMigrationsAndSeed() {
   }
 
   // 10. Ensure analytics_events table exists and seed baseline telemetry
-  sqliteDb.exec(`
+  await sqliteDb.exec(`
     CREATE TABLE IF NOT EXISTS analytics_events (
       id TEXT PRIMARY KEY,
       event_type TEXT NOT NULL,
