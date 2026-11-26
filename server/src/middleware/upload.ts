@@ -46,14 +46,19 @@ export const upload = multer({
 
 export async function processImageUpload(file: Express.Multer.File): Promise<string> {
   const localUrl = `/uploads/${file.filename}`;
-  const isVercel = Boolean(process.env.VERCEL || process.env.NOW_REGION);
+  const isCloud = Boolean(
+    process.env.VERCEL ||
+    process.env.NOW_REGION ||
+    process.env.RENDER ||
+    process.env.RENDER_EXTERNAL_URL
+  );
   const bucketName = (process.env.SUPABASE_STORAGE_BUCKET || 'gallery-images').trim();
   const client = getSupabaseClient();
 
   if (!client) {
-    if (isVercel) {
+    if (isCloud) {
       throw new Error(
-        'Supabase Storage is not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in Vercel Environment Variables and redeploy.'
+        'Supabase Storage is not configured on the backend. Add SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, and SUPABASE_STORAGE_BUCKET=gallery-images in Render Environment Variables.'
       );
     }
     return localUrl;
@@ -69,7 +74,7 @@ export async function processImageUpload(file: Express.Multer.File): Promise<str
       });
 
     if (error) {
-      if (isVercel) {
+      if (isCloud) {
         throw new Error(`Supabase Storage upload failed (bucket "${bucketName}"): ${error.message}`);
       }
       console.warn('⚠️ Supabase Storage upload failed, falling back to local URL:', error.message);
@@ -83,7 +88,7 @@ export async function processImageUpload(file: Express.Multer.File): Promise<str
       }
     }
   } catch (err: any) {
-    if (isVercel) {
+    if (isCloud) {
       throw err;
     }
     console.warn('⚠️ Supabase Storage upload failed, falling back to local URL:', err);
