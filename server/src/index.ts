@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'node:path';
 import dotenv from 'dotenv';
-import { initDatabaseEngine, initDatabase, sqliteDb, activeDbEngine } from './db/database.js';
+import { initDatabaseEngine, initDatabase, sqliteDb, activeDbEngine, getSupabaseClient } from './db/database.js';
 import { seedDatabase } from './db/seed.js';
 import { runMigrationsAndSeed } from './db/migrateAndSeed.js';
 import publicRouter from './routes/public.js';
@@ -74,6 +74,8 @@ app.get('/api/health', (_req, res) => {
     status: 'ok',
     brand: 'Hriday Banquet Hall',
     dbEngine: activeDbEngine,
+    storageConfigured: Boolean(getSupabaseClient()),
+    storageBucket: (process.env.SUPABASE_STORAGE_BUCKET || 'gallery-images').trim(),
     timestamp: new Date().toISOString(),
   });
 });

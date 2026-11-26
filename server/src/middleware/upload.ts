@@ -1,7 +1,7 @@
 import multer from 'multer';
 import path from 'node:path';
 import fs from 'node:fs';
-import { supabase } from '../db/database.js';
+import { getSupabaseClient } from '../db/database.js';
 
 const currentDir = __dirname;
 
@@ -46,28 +46,47 @@ export const upload = multer({
 
 export async function processImageUpload(file: Express.Multer.File): Promise<string> {
   const localUrl = `/uploads/${file.filename}`;
+  const isVercel = Boolean(process.env.VERCEL || process.env.NOW_REGION);
+  const bucketName = (process.env.SUPABASE_STORAGE_BUCKET || 'gallery-images').trim();
+  const client = getSupabaseClient();
 
-  // If Supabase is configured and storage bucket is set, upload to Supabase Storage
-  const bucketName = process.env.SUPABASE_STORAGE_BUCKET || 'gallery-images';
-  if (supabase) {
-    try {
-      const fileBuffer = fs.readFileSync(file.path);
-      const { data, error } = await supabase.storage
-        .from(bucketName)
-        .upload(`uploads/${file.filename}`, fileBuffer, {
-          contentType: file.mimetype,
-          upsert: true,
-        });
-
-      if (!error && data) {
-        const { data: publicData } = supabase.storage.from(bucketName).getPublicUrl(data.path);
-        if (publicData?.publicUrl) {
-          return publicData.publicUrl;
-        }
-      }
-    } catch (err) {
-      console.warn('⚠️ Supabase Storage upload failed, falling back to local URL:', err);
+  if (!client) {
+    if (isVercel) {
+      throw new Error(
+        'Supabase Storage is not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in Vercel Environment Variables and redeploy.'
+      );
     }
+    return localUrl;
+  }
+
+  try {
+    const fileBuffer = fs.readFileSync(file.path);
+    const { data, error } = await client.storage
+      .from(bucketName)
+      .upload(`uploads/${file.filename}`, fileBuffer, {
+        contentType: file.mimetype,
+        upsert: true,
+      });
+
+    if (error) {
+      if (isVercel) {
+        throw new Error(`Supabase Storage upload failed (bucket "${bucketName}"): ${error.message}`);
+      }
+      console.warn('⚠️ Supabase Storage upload failed, falling back to local URL:', error.message);
+      return localUrl;
+    }
+
+    if (data) {
+      const { data: publicData } = client.storage.from(bucketName).getPublicUrl(data.path);
+      if (publicData?.publicUrl) {
+        return publicData.publicUrl;
+      }
+    }
+  } catch (err: any) {
+    if (isVercel) {
+      throw err;
+    }
+    console.warn('⚠️ Supabase Storage upload failed, falling back to local URL:', err);
   }
 
   return localUrl;
