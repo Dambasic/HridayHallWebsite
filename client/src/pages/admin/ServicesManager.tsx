@@ -415,6 +415,7 @@ export const ServicesManager: React.FC = () => {
 
     try {
       await deleteAdminService(id);
+      setServices((prev) => prev.filter((s) => s.id !== id));
       showToast('Service deleted successfully');
       await loadServices();
       await refreshContent();

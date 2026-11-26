@@ -63,6 +63,14 @@ app.use(async (req, res, next) => {
   }
 });
 
+// Prevent stale browser/CDN caching for dynamic CMS API responses
+app.use('/api', (_req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+});
+
 // API Routes
 app.use('/api/public', publicRouter);
 app.use('/api/auth', authRouter);

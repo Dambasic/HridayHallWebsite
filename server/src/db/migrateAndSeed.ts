@@ -229,23 +229,29 @@ export async function runMigrationsAndSeed() {
     },
   ];
 
-  for (const s of defaultServices) {
-    const existing = await sqliteDb.prepare('SELECT id, slug FROM services WHERE id = ?').get(s.id) as any;
-    if (existing) {
-      await sqliteDb.prepare(`
-        UPDATE services SET
-          slug = ?,
-          short_description = ?,
-          full_description = ?,
-          features = ?,
-          updated_at = ?
-        WHERE id = ?
-      `).run(s.slug, s.short_description, s.full_description, s.features, now, s.id);
-    } else {
+  const serviceCountRow = (await sqliteDb.prepare('SELECT COUNT(*) as count FROM services').get()) as { count: number };
+  if (serviceCountRow.count === 0) {
+    for (const s of defaultServices) {
       await sqliteDb.prepare(`
         INSERT INTO services (id, title, slug, description, short_description, full_description, features, image_url, category, display_order, is_active, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)
       `).run(s.id, s.title, s.slug, s.short_description, s.short_description, s.full_description, s.features, s.image_url, s.category, s.display_order, now, now);
+    }
+  } else {
+    // Only backfill legacy rows that are missing slug/full_description; never re-insert deleted services or overwrite admin edits
+    for (const s of defaultServices) {
+      const existing = await sqliteDb.prepare('SELECT id, slug FROM services WHERE id = ?').get(s.id) as any;
+      if (existing && (!existing.slug || existing.slug === '')) {
+        await sqliteDb.prepare(`
+          UPDATE services SET
+            slug = ?,
+            short_description = ?,
+            full_description = ?,
+            features = ?,
+            updated_at = ?
+          WHERE id = ?
+        `).run(s.slug, s.short_description, s.full_description, s.features, now, s.id);
+      }
     }
   }
 

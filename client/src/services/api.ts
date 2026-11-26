@@ -43,17 +43,17 @@ async function handleResponse<T>(response: Response): Promise<T> {
 // PUBLIC API
 // ==========================================
 export async function fetchPublicContent(): Promise<WebsiteContent> {
-  const res = await fetch(`${API_BASE}/public/content`);
+  const res = await fetch(`${API_BASE}/public/content`, { cache: 'no-store' });
   return handleResponse<WebsiteContent>(res);
 }
 
 export async function fetchServiceBySlug(slug: string): Promise<ServiceItem> {
-  const res = await fetch(`${API_BASE}/public/services/${encodeURIComponent(slug)}`);
+  const res = await fetch(`${API_BASE}/public/services/${encodeURIComponent(slug)}`, { cache: 'no-store' });
   return handleResponse<ServiceItem>(res);
 }
 
 export async function fetchPublicCelebrations(featuredOnly = false): Promise<CelebrationItem[]> {
-  const res = await fetch(`${API_BASE}/public/celebrations${featuredOnly ? '?featured=1' : ''}`);
+  const res = await fetch(`${API_BASE}/public/celebrations${featuredOnly ? '?featured=1' : ''}`, { cache: 'no-store' });
   return handleResponse<CelebrationItem[]>(res);
 }
 
@@ -163,6 +163,7 @@ export async function updateAdminAbout(about: Partial<AboutContent>): Promise<{ 
 export async function fetchAdminServices(): Promise<ServiceItem[]> {
   const res = await fetch(`${API_BASE}/admin/services`, {
     headers: { ...getAuthHeader() },
+    cache: 'no-store',
   });
   return handleResponse<ServiceItem[]>(res);
 }
