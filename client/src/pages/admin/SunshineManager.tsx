@@ -202,13 +202,13 @@ export const SunshineManager: React.FC = () => {
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-charcoal-700 mb-1.5">
-              Attribution Statement *
+              Top Badge Text
             </label>
             <input
               type="text"
-              required
-              value={agency.attribution_statement}
-              onChange={(e) => setAgency({ ...agency, attribution_statement: e.target.value })}
+              placeholder="Digital Partner & Agency Showcase"
+              value={agency.badge_text ?? 'Digital Partner & Agency Showcase'}
+              onChange={(e) => setAgency({ ...agency, badge_text: e.target.value })}
               className="w-full px-4 py-2.5 bg-ivory-50 border border-charcoal-200 rounded-xl text-xs sm:text-sm text-charcoal-800"
             />
           </div>
@@ -237,6 +237,84 @@ export const SunshineManager: React.FC = () => {
             onChange={(e) => setAgency({ ...agency, supporting_text: e.target.value })}
             className="w-full px-4 py-2.5 bg-ivory-50 border border-charcoal-200 rounded-xl text-xs sm:text-sm text-charcoal-800 resize-none"
           />
+        </div>
+
+        <div className="pt-4 border-t border-charcoal-100 space-y-4">
+          <h4 className="font-serif text-base font-bold text-maroon-950">
+            Bottom Callout &amp; Enquiry Bar
+          </h4>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-charcoal-700 mb-1.5">
+                Callout Badge Label
+              </label>
+              <input
+                type="text"
+                placeholder="Official Marketing Partner"
+                value={agency.callout_badge_text ?? 'Official Marketing Partner'}
+                onChange={(e) => setAgency({ ...agency, callout_badge_text: e.target.value })}
+                className="w-full px-4 py-2.5 bg-ivory-50 border border-charcoal-200 rounded-xl text-xs sm:text-sm text-charcoal-800"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-charcoal-700 mb-1.5">
+                Attribution Statement *
+              </label>
+              <input
+                type="text"
+                required
+                value={agency.attribution_statement}
+                onChange={(e) => setAgency({ ...agency, attribution_statement: e.target.value })}
+                className="w-full px-4 py-2.5 bg-ivory-50 border border-charcoal-200 rounded-xl text-xs sm:text-sm text-charcoal-800"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-charcoal-700 mb-1.5">
+              Callout Subtext
+            </label>
+            <textarea
+              rows={2}
+              placeholder="Grow your local brand presence, boost customer bookings, and launch high-impact digital campaigns with our expert team."
+              value={
+                agency.callout_subtext ??
+                'Grow your local brand presence, boost customer bookings, and launch high-impact digital campaigns with our expert team.'
+              }
+              onChange={(e) => setAgency({ ...agency, callout_subtext: e.target.value })}
+              className="w-full px-4 py-2.5 bg-ivory-50 border border-charcoal-200 rounded-xl text-xs sm:text-sm text-charcoal-800 resize-none"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-charcoal-700 mb-1.5">
+                Agency Email Address (leave blank to hide)
+              </label>
+              <input
+                type="email"
+                placeholder="sunshineexplores2016@gmail.com"
+                value={agency.email_address ?? 'sunshineexplores2016@gmail.com'}
+                onChange={(e) => setAgency({ ...agency, email_address: e.target.value })}
+                className="w-full px-4 py-2.5 bg-ivory-50 border border-charcoal-200 rounded-xl text-xs sm:text-sm text-charcoal-800"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-charcoal-700 mb-1.5">
+                WhatsApp CTA Button Text
+              </label>
+              <input
+                type="text"
+                placeholder="Enquire About Digital Marketing"
+                value={agency.cta_button_text ?? 'Enquire About Digital Marketing'}
+                onChange={(e) => setAgency({ ...agency, cta_button_text: e.target.value })}
+                className="w-full px-4 py-2.5 bg-ivory-50 border border-charcoal-200 rounded-xl text-xs sm:text-sm text-charcoal-800"
+              />
+            </div>
+          </div>
         </div>
       </form>
 

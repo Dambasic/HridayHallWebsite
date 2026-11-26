@@ -381,6 +381,11 @@ export async function initDatabase() {
       logo_url TEXT NOT NULL DEFAULT '',
       banner_image_url TEXT NOT NULL DEFAULT '',
       attribution_statement TEXT NOT NULL,
+      badge_text TEXT NOT NULL DEFAULT 'Digital Partner & Agency Showcase',
+      callout_badge_text TEXT NOT NULL DEFAULT 'Official Marketing Partner',
+      callout_subtext TEXT NOT NULL DEFAULT 'Grow your local brand presence, boost customer bookings, and launch high-impact digital campaigns with our expert team.',
+      email_address TEXT NOT NULL DEFAULT 'sunshineexplores2016@gmail.com',
+      cta_button_text TEXT NOT NULL DEFAULT 'Enquire About Digital Marketing',
       is_visible INTEGER NOT NULL DEFAULT 1,
       updated_at TEXT NOT NULL
     );
@@ -458,6 +463,24 @@ export async function initDatabase() {
     const settingsColNames = settingsCols.map((c) => c.name);
     if (!settingsColNames.includes('hero_bg_opacity')) {
       await sqliteDb.exec('ALTER TABLE website_settings ADD COLUMN hero_bg_opacity INTEGER NOT NULL DEFAULT 45');
+    }
+
+    const sunshineCols = (await sqliteDb.prepare('PRAGMA table_info(sunshine_agency)').all()) as any[];
+    const sunshineColNames = sunshineCols.map((c) => c.name);
+    if (!sunshineColNames.includes('badge_text')) {
+      await sqliteDb.exec("ALTER TABLE sunshine_agency ADD COLUMN badge_text TEXT NOT NULL DEFAULT 'Digital Partner & Agency Showcase'");
+    }
+    if (!sunshineColNames.includes('callout_badge_text')) {
+      await sqliteDb.exec("ALTER TABLE sunshine_agency ADD COLUMN callout_badge_text TEXT NOT NULL DEFAULT 'Official Marketing Partner'");
+    }
+    if (!sunshineColNames.includes('callout_subtext')) {
+      await sqliteDb.exec("ALTER TABLE sunshine_agency ADD COLUMN callout_subtext TEXT NOT NULL DEFAULT 'Grow your local brand presence, boost customer bookings, and launch high-impact digital campaigns with our expert team.'");
+    }
+    if (!sunshineColNames.includes('email_address')) {
+      await sqliteDb.exec("ALTER TABLE sunshine_agency ADD COLUMN email_address TEXT NOT NULL DEFAULT 'sunshineexplores2016@gmail.com'");
+    }
+    if (!sunshineColNames.includes('cta_button_text')) {
+      await sqliteDb.exec("ALTER TABLE sunshine_agency ADD COLUMN cta_button_text TEXT NOT NULL DEFAULT 'Enquire About Digital Marketing'");
     }
   } catch (err) {
     console.warn('Column check error:', err);

@@ -1094,6 +1094,10 @@ router.get('/sunshine', async (_req: AuthenticatedRequest, res: Response) => {
 
 router.put('/sunshine', async (req: AuthenticatedRequest, res: Response) => {
   try {
+    const existing = (await sqliteDb
+      .prepare("SELECT * FROM sunshine_agency WHERE id = 'sunshine_default'")
+      .get()) as any;
+
     const {
       agency_name,
       heading,
@@ -1102,6 +1106,11 @@ router.put('/sunshine', async (req: AuthenticatedRequest, res: Response) => {
       logo_url,
       banner_image_url,
       attribution_statement,
+      badge_text,
+      callout_badge_text,
+      callout_subtext,
+      email_address,
+      cta_button_text,
       is_visible,
     } = req.body;
 
@@ -1116,18 +1125,28 @@ router.put('/sunshine', async (req: AuthenticatedRequest, res: Response) => {
         logo_url = ?,
         banner_image_url = ?,
         attribution_statement = ?,
+        badge_text = ?,
+        callout_badge_text = ?,
+        callout_subtext = ?,
+        email_address = ?,
+        cta_button_text = ?,
         is_visible = ?,
         updated_at = ?
       WHERE id = 'sunshine_default'
     `).run(
-      agency_name || 'SUNSHINE EVENTS & MANAGEMENT',
-      heading || '',
-      supporting_text || '',
-      description || '',
-      logo_url || '',
-      banner_image_url || '',
-      attribution_statement || '',
-      is_visible !== undefined ? (is_visible ? 1 : 0) : 1,
+      agency_name ?? existing?.agency_name ?? 'SUNSHINE EVENTS & MANAGEMENT',
+      heading ?? existing?.heading ?? '',
+      supporting_text ?? existing?.supporting_text ?? '',
+      description ?? existing?.description ?? '',
+      logo_url ?? existing?.logo_url ?? '',
+      banner_image_url ?? existing?.banner_image_url ?? '',
+      attribution_statement ?? existing?.attribution_statement ?? '',
+      badge_text ?? existing?.badge_text ?? 'Digital Partner & Agency Showcase',
+      callout_badge_text ?? existing?.callout_badge_text ?? 'Official Marketing Partner',
+      callout_subtext ?? existing?.callout_subtext ?? '',
+      email_address ?? existing?.email_address ?? '',
+      cta_button_text ?? existing?.cta_button_text ?? 'Enquire About Digital Marketing',
+      is_visible !== undefined ? (is_visible ? 1 : 0) : (existing?.is_visible ?? 1),
       now
     );
 

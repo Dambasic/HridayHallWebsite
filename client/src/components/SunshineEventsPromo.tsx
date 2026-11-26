@@ -37,6 +37,16 @@ export const SunshineEventsPromo: React.FC<SunshineEventsPromoProps> = ({ onOpen
   const attribution =
     sunshine.attribution_statement ||
     'Website Marketing & Promotion of Hriday Banquet Hall is managed by Sunshine Events & Management.';
+  const badgeText = sunshine.badge_text || 'Digital Partner & Agency Showcase';
+  const calloutBadgeText = sunshine.callout_badge_text || 'Official Marketing Partner';
+  const calloutSubtext =
+    sunshine.callout_subtext ||
+    'Grow your local brand presence, boost customer bookings, and launch high-impact digital campaigns with our expert team.';
+  const agencyEmail =
+    sunshine.email_address !== undefined
+      ? sunshine.email_address
+      : content?.contact?.email_address || 'sunshineexplores2016@gmail.com';
+  const ctaButtonText = sunshine.cta_button_text || 'Enquire About Digital Marketing';
 
   const services = sunshine.services && sunshine.services.length > 0
     ? sunshine.services
@@ -81,7 +91,7 @@ export const SunshineEventsPromo: React.FC<SunshineEventsPromoProps> = ({ onOpen
         <div className="text-center max-w-4xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-300 text-xs font-semibold uppercase tracking-widest mb-4 shadow-sm">
             <Sparkles className="w-4 h-4 text-amber-400" />
-            <span>Digital Partner &amp; Agency Showcase</span>
+            <span>{badgeText}</span>
           </div>
 
           <h3 className="text-sm font-semibold tracking-widest uppercase text-amber-400 mb-2">
@@ -124,7 +134,7 @@ export const SunshineEventsPromo: React.FC<SunshineEventsPromoProps> = ({ onOpen
           <div className="max-w-2xl text-center lg:text-left">
             <div className="inline-flex items-center gap-2 text-xs font-bold text-amber-300 mb-2">
               <ShieldCheck className="w-4 h-4" />
-              <span>Official Marketing Partner</span>
+              <span>{calloutBadgeText}</span>
             </div>
 
             <p className="font-serif text-xl sm:text-2xl font-bold text-white mb-2">
@@ -132,18 +142,20 @@ export const SunshineEventsPromo: React.FC<SunshineEventsPromoProps> = ({ onOpen
             </p>
 
             <p className="text-xs sm:text-sm text-ivory-200 font-normal">
-              Grow your local brand presence, boost customer bookings, and launch high-impact digital campaigns with our expert team.
+              {calloutSubtext}
             </p>
           </div>
 
           <div className="shrink-0 flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-            <a
-              href={`mailto:${content?.contact?.email_address || 'sunshineexplores2016@gmail.com'}`}
-              className="w-full sm:w-auto px-5 py-3.5 bg-white/10 hover:bg-white/20 text-ivory-50 font-semibold text-xs sm:text-sm rounded-full transition shadow flex items-center justify-center gap-2 border border-amber-400/40"
-            >
-              <Mail className="w-4 h-4 text-amber-300" />
-              <span>{content?.contact?.email_address || 'sunshineexplores2016@gmail.com'}</span>
-            </a>
+            {agencyEmail && (
+              <a
+                href={`mailto:${agencyEmail}`}
+                className="w-full sm:w-auto px-5 py-3.5 bg-white/10 hover:bg-white/20 text-ivory-50 font-semibold text-xs sm:text-sm rounded-full transition shadow flex items-center justify-center gap-2 border border-amber-400/40"
+              >
+                <Mail className="w-4 h-4 text-amber-300" />
+                <span>{agencyEmail}</span>
+              </a>
+            )}
             {hasWhatsApp && waUrl ? (
               <a
                 href={waUrl}
@@ -152,7 +164,7 @@ export const SunshineEventsPromo: React.FC<SunshineEventsPromoProps> = ({ onOpen
                 className="w-full sm:w-auto px-5 sm:px-7 py-3.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-semibold text-xs sm:text-sm whitespace-nowrap rounded-full transition shadow-lg flex items-center justify-center gap-2 border border-emerald-400/30"
               >
                 <MessageCircle className="w-4 h-4 shrink-0" />
-                <span>Enquire About Digital Marketing</span>
+                <span>{ctaButtonText}</span>
               </a>
             ) : (
               <button
@@ -160,7 +172,7 @@ export const SunshineEventsPromo: React.FC<SunshineEventsPromoProps> = ({ onOpen
                 className="w-full sm:w-auto px-5 sm:px-7 py-3.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-charcoal-950 font-semibold text-xs sm:text-sm whitespace-nowrap rounded-full transition shadow-lg flex items-center justify-center gap-2"
               >
                 <MessageCircle className="w-4 h-4 text-charcoal-950 shrink-0" />
-                <span>Enquire About Digital Marketing</span>
+                <span>{ctaButtonText}</span>
               </button>
             )}
           </div>

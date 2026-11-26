@@ -160,6 +160,11 @@ export interface SunshineAgency {
   logo_url: string;
   banner_image_url: string;
   attribution_statement: string;
+  badge_text?: string;
+  callout_badge_text?: string;
+  callout_subtext?: string;
+  email_address?: string;
+  cta_button_text?: string;
   is_visible: number;
   updated_at: string;
   services?: SunshineService[];
