@@ -50,7 +50,7 @@ Injected dynamically via `getHomepageSchema()` on `https://hridaybanquethall.com
         "caption": "Hriday Banquet Hall Brand Logo"
       },
       "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=2000&q=85",
-      "description": "Hriday Banquet Hall is a premier luxury hospitality and celebration venue in Kolkata, hosting grand weddings, receptions, corporate galas, and milestone family celebrations."
+      "description": "Hriday Banquet Hall is a premier luxury hospitality and celebration venue in Pimpri Chinchwad, hosting grand weddings, receptions, corporate galas, and milestone family celebrations."
     },
     {
       "@type": ["EventVenue", "LocalBusiness"],
@@ -62,12 +62,12 @@ Injected dynamically via `getHomepageSchema()` on `https://hridaybanquethall.com
         "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=2000&q=85",
         "https://hridaybanquethall.com/hriday-logo.png"
       ],
-      "description": "Premier air-conditioned banquet hall in Kolkata for weddings, engagement ceremonies, birthday parties, anniversaries, and corporate events with bespoke decor and hospitality.",
+      "description": "Premier air-conditioned banquet hall in Pimpri Chinchwad for weddings, engagement ceremonies, birthday parties, anniversaries, and corporate events with bespoke decor and hospitality.",
       "address": {
         "@type": "PostalAddress",
-        "streetAddress": "Near City Center, Main Road, Kolkata, West Bengal, India",
-        "addressLocality": "Kolkata",
-        "addressRegion": "West Bengal",
+        "streetAddress": "Near City Center, Main Road, Pimpri Chinchwad, Maharashtra, India",
+        "addressLocality": "Pimpri Chinchwad",
+        "addressRegion": "Maharashtra",
         "addressCountry": "IN"
       },
       "openingHours": ["Monday – Sunday: 10:00 AM – 10:00 PM"],
@@ -111,7 +111,7 @@ Injected dynamically via `getHomepageSchema()` on `https://hridaybanquethall.com
       "@id": "https://hridaybanquethall.com/#website",
       "url": "https://hridaybanquethall.com",
       "name": "Hriday Banquet Hall",
-      "description": "Luxury Banquet Hall in Kolkata for Weddings and Private Celebrations",
+      "description": "Luxury Banquet Hall in Pimpri Chinchwad for Weddings and Private Celebrations",
       "publisher": {
         "@id": "https://hridaybanquethall.com/#organization"
       },
@@ -168,14 +168,14 @@ Injected dynamically via `getServicePageSchema()` on each `/services/:slug` rout
         "image": "https://hridaybanquethall.com/hriday-logo.png",
         "address": {
           "@type": "PostalAddress",
-          "addressLocality": "Kolkata",
-          "addressRegion": "West Bengal",
+          "addressLocality": "Pimpri Chinchwad",
+          "addressRegion": "Maharashtra",
           "addressCountry": "IN"
         }
       },
       "areaServed": {
         "@type": "City",
-        "name": "Kolkata"
+        "name": "Pimpri Chinchwad"
       },
       "image": "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=85",
       "url": "https://hridaybanquethall.com/services/wedding-functions"

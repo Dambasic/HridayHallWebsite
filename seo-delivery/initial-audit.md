@@ -53,7 +53,7 @@ This report documents all identified deficiencies categorized by severity, along
 
 1. **Missing Dynamic Meta Titles & Descriptions across Service Pages**:
    - *Observation*: Every route on the website retains the hardcoded fallback title and description in `index.html`. When navigating to `/services/wedding-functions`, Google receives the generic homepage title `"Hriday Banquet Hall – Premium Celebrations & Events Venue"`.
-   - *Risk*: Severe title cannibalization, search snippet duplication, and failure to rank for target high-intent phrases like "Wedding Banquet Hall in Kolkata".
+   - *Risk*: Severe title cannibalization, search snippet duplication, and failure to rank for target high-intent phrases like "Wedding Banquet Hall in Pimpri Chinchwad".
    - *Remediation*: Implement a dynamic `SEOHead` component synchronizing title, meta description, and keywords on route change.
 
 2. **Absence of XML Sitemap (`/sitemap.xml`)**:

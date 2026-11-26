@@ -43,7 +43,7 @@ export function getHomepageSchema(content?: WebsiteContent | null): Record<strin
         },
         image: heroImage,
         description:
-          'Hriday Banquet Hall is a premier luxury hospitality and celebration venue in Kolkata, hosting grand weddings, receptions, corporate galas, and milestone family celebrations.',
+          'Hriday Banquet Hall is a premier luxury hospitality and celebration venue in Pimpri Chinchwad, hosting grand weddings, receptions, corporate galas, and milestone family celebrations.',
         ...(phone ? { telephone: phone } : {}),
         ...(email ? { email: email } : {}),
       },
@@ -60,12 +60,12 @@ export function getHomepageSchema(content?: WebsiteContent | null): Record<strin
           `${BASE_URL}/hriday-logo.png`,
         ],
         description:
-          'Premier air-conditioned banquet hall in Kolkata for weddings, engagement ceremonies, birthday parties, anniversaries, and corporate events with bespoke decor and hospitality.',
+          'Premier air-conditioned banquet hall in Pimpri Chinchwad for weddings, engagement ceremonies, birthday parties, anniversaries, and corporate events with bespoke decor and hospitality.',
         address: {
           '@type': 'PostalAddress',
           streetAddress: fullAddress,
-          addressLocality: 'Kolkata',
-          addressRegion: 'West Bengal',
+          addressLocality: 'Pimpri Chinchwad',
+          addressRegion: 'Maharashtra',
           addressCountry: 'IN',
         },
         openingHours: [openingHours],
@@ -85,7 +85,7 @@ export function getHomepageSchema(content?: WebsiteContent | null): Record<strin
         '@id': `${BASE_URL}/#website`,
         url: BASE_URL,
         name: venueName,
-        description: 'Luxury Banquet Hall in Kolkata for Weddings and Private Celebrations',
+        description: 'Luxury Banquet Hall in Pimpri Chinchwad for Weddings and Private Celebrations',
         publisher: {
           '@id': `${BASE_URL}/#organization`,
         },
@@ -151,14 +151,14 @@ export function getServicePageSchema(
           image: `${BASE_URL}/hriday-logo.png`,
           address: {
             '@type': 'PostalAddress',
-            addressLocality: 'Kolkata',
-            addressRegion: 'West Bengal',
+            addressLocality: 'Pimpri Chinchwad',
+            addressRegion: 'Maharashtra',
             addressCountry: 'IN',
           },
         },
         areaServed: {
           '@type': 'City',
-          name: 'Kolkata',
+          name: 'Pimpri Chinchwad',
         },
         image: imageUrl,
         url: serviceUrl,

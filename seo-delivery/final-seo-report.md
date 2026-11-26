@@ -49,33 +49,33 @@ All code-side improvements have been developed, deployed, tested, and verified d
 Every public page features unique, non-duplicated metadata tailored to high-conversion search queries:
 
 1. **Homepage (`/`)**:
-   - **Title**: `Hriday Banquet Hall – Luxury Weddings & Celebrations Venue in Kolkata`
-   - **Meta Description**: `Celebrate your special moments at Hriday Banquet Hall. Premium venue for grand weddings, engagements, corporate events, and milestone parties in Kolkata with royal ambiance.`
+   - **Title**: `Hriday Banquet Hall – Luxury Weddings & Celebrations Venue in Pimpri Chinchwad`
+   - **Meta Description**: `Celebrate your special moments at Hriday Banquet Hall. Premium venue for grand weddings, engagements, corporate events, and milestone parties in Pimpri Chinchwad with royal ambiance.`
    - **Canonical**: `https://hridaybanquethall.com/`
 2. **Wedding Functions (`/services/wedding-functions`)**:
-   - **Title**: `Wedding Functions in Kolkata | Hriday Banquet Hall`
-   - **Meta Description**: `Host your royal wedding ceremony and marriage reception at Hriday Banquet Hall in Kolkata. Grand stage decor, lavish dining layouts, and seamless hospitality.`
+   - **Title**: `Wedding Functions in Pimpri Chinchwad | Hriday Banquet Hall`
+   - **Meta Description**: `Host your royal wedding ceremony and marriage reception at Hriday Banquet Hall in Pimpri Chinchwad. Grand stage decor, lavish dining layouts, and seamless hospitality.`
 3. **Engagement Ceremonies (`/services/engagement-ceremonies`)**:
-   - **Title**: `Engagement Ceremonies in Kolkata | Hriday Banquet Hall`
-   - **Meta Description**: `Celebrate your engagement and ring ceremony at Hriday Banquet Hall, Kolkata. Intimate floral backdrops, romantic stage lighting, and warm family hospitality.`
+   - **Title**: `Engagement Ceremonies in Pimpri Chinchwad | Hriday Banquet Hall`
+   - **Meta Description**: `Celebrate your engagement and ring ceremony at Hriday Banquet Hall, Pimpri Chinchwad. Intimate floral backdrops, romantic stage lighting, and warm family hospitality.`
 4. **Birthday Celebrations (`/services/birthday-celebrations`)**:
-   - **Title**: `Birthday Celebrations in Kolkata | Hriday Banquet Hall`
-   - **Meta Description**: `Turn milestone birthdays into festive gatherings with custom theme decorations, dynamic lighting, and celebratory vibes at Hriday Banquet Hall in Kolkata.`
+   - **Title**: `Birthday Celebrations in Pimpri Chinchwad | Hriday Banquet Hall`
+   - **Meta Description**: `Turn milestone birthdays into festive gatherings with custom theme decorations, dynamic lighting, and celebratory vibes at Hriday Banquet Hall in Pimpri Chinchwad.`
 5. **Anniversary Celebrations (`/services/anniversary-celebrations`)**:
-   - **Title**: `Anniversary Celebrations in Kolkata | Hriday Banquet Hall`
+   - **Title**: `Anniversary Celebrations in Pimpri Chinchwad | Hriday Banquet Hall`
    - **Meta Description**: `Honor cherished years of togetherness with romantic candlelit tables, crystal chandeliers, royal stage decor, and gourmet catering at Hriday Banquet Hall.`
 6. **Corporate Events (`/services/corporate-events`)**:
-   - **Title**: `Corporate Events in Kolkata | Hriday Banquet Hall`
+   - **Title**: `Corporate Events in Pimpri Chinchwad | Hriday Banquet Hall`
    - **Meta Description**: `Host executive meets, conferences, corporate dinners, and award nights with professional excellence, AV equipment, and bespoke catering at Hriday Banquet Hall.`
 7. **Family Gatherings (`/services/family-gatherings`)**:
-   - **Title**: `Family Gatherings in Kolkata | Hriday Banquet Hall`
+   - **Title**: `Family Gatherings in Pimpri Chinchwad | Hriday Banquet Hall`
    - **Meta Description**: `Spacious and welcoming banquet arrangements where large families can reunite, celebrate, and bond comfortably with authentic dining at Hriday Banquet Hall.`
 8. **Private Celebrations (`/services/private-celebrations`)**:
-   - **Title**: `Private Celebrations in Kolkata | Hriday Banquet Hall`
-   - **Meta Description**: `Exclusive private booking arrangements ensuring complete privacy, personalized decor, and dedicated banquet attention at Hriday Banquet Hall in Kolkata.`
+   - **Title**: `Private Celebrations in Pimpri Chinchwad | Hriday Banquet Hall`
+   - **Meta Description**: `Exclusive private booking arrangements ensuring complete privacy, personalized decor, and dedicated banquet attention at Hriday Banquet Hall in Pimpri Chinchwad.`
 9. **Event Arrangements (`/services/event-arrangements`)**:
-   - **Title**: `Event Arrangements in Kolkata | Hriday Banquet Hall`
-   - **Meta Description**: `Complete turnkey banquet coordination including stage lighting, audio setups, floral styling, and welcoming guest reception at Hriday Banquet Hall, Kolkata.`
+   - **Title**: `Event Arrangements in Pimpri Chinchwad | Hriday Banquet Hall`
+   - **Meta Description**: `Complete turnkey banquet coordination including stage lighting, audio setups, floral styling, and welcoming guest reception at Hriday Banquet Hall, Pimpri Chinchwad.`
 
 ---
 
@@ -85,7 +85,7 @@ The website now injects validated, compliant JSON-LD structured data into the `<
 
 1. **`EventVenue` & `LocalBusiness` Graph**:
    - Name: `Hriday Banquet Hall`
-   - Address: Street address, City: Kolkata, Region: West Bengal, Country: IN.
+   - Address: Street address, City: Pimpri Chinchwad, Region: Maharashtra, Country: IN.
    - Operating Hours: Monday – Sunday: 10:00 AM – 10:00 PM.
    - Price Range: `₹₹₹`.
    - OfferCatalog: Contains all 8 core banquet celebration offerings.
@@ -94,7 +94,7 @@ The website now injects validated, compliant JSON-LD structured data into the `<
 3. **`WebSite` Schema**:
    - Binds the root domain with the publisher entity.
 4. **`Service` Schema**:
-   - Specific service details, localized area served (Kolkata), and provider linkage on every service page.
+   - Specific service details, localized area served (Pimpri Chinchwad), and provider linkage on every service page.
 5. **`BreadcrumbList` Schema**:
    - Navigation trail (`Home > Facilities & Services > [Service Title]`) for Google rich snippet display.
 
@@ -155,13 +155,13 @@ The website now injects validated, compliant JSON-LD structured data into the `<
 ## 8. Ongoing Recommendations for Organic Growth
 
 1. **Google Business Profile Review Strategy**:
-   Encourage couples and corporate event organizers to leave 5-star Google reviews mentioning specific keywords (e.g. *"Best wedding banquet hall in Kolkata"*).
+   Encourage couples and corporate event organizers to leave 5-star Google reviews mentioning specific keywords (e.g. *"Best wedding banquet hall in Pimpri Chinchwad"*).
 2. **Seasonal Photo Gallery Updates**:
    Continuously upload fresh photos of real stage decors, floral arrangements, and wedding receptions via the Admin Gallery Manager (`/admin/gallery`).
 3. **Local Citations & Directory Presence**:
    List Hriday Banquet Hall on premier wedding directories (WedMeGood, WeddingWire India, JustDial).
 4. **Blog & Event Guides (Future Expansion)**:
-   Publish informative guides such as *"Ultimate Checklist for Planning a Wedding Reception in Kolkata"* to capture top-of-funnel informational search queries.
+   Publish informative guides such as *"Ultimate Checklist for Planning a Wedding Reception in Pimpri Chinchwad"* to capture top-of-funnel informational search queries.
 
 ---
 *End of Professional SEO Standard Delivery Report.*

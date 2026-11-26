@@ -12,9 +12,9 @@ export interface SEOHeadProps {
 }
 
 const SITE_URL = 'https://hridaybanquethall.com';
-const DEFAULT_TITLE = 'Hriday Banquet Hall – Luxury Weddings & Celebrations Venue in Kolkata';
+const DEFAULT_TITLE = 'Hriday Banquet Hall – Luxury Weddings & Celebrations Venue in Pimpri Chinchwad';
 const DEFAULT_DESCRIPTION =
-  'Celebrate your special moments at Hriday Banquet Hall. An elegant destination for weddings, receptions, engagements, corporate events, and milestone parties in Kolkata with regal ambiance and bespoke decor.';
+  'Celebrate your special moments at Hriday Banquet Hall. An elegant destination for weddings, receptions, engagements, corporate events, and milestone parties in Pimpri Chinchwad with regal ambiance and bespoke decor.';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/hriday-logo.png`;
 
 export const SEOHead: React.FC<SEOHeadProps> = ({

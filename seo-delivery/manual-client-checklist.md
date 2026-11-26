@@ -67,7 +67,7 @@ This checklist provides step-by-step instructions for completing the remaining o
 
 ### Task 3: Google Business Profile (GBP / Google Maps) Optimization
 - **Status**: 🔑 *Requires Client Access*
-- **Importance**: Vital for ranking in the Local 3-Pack for queries like "Banquet hall near me" and "Wedding venue in Kolkata".
+- **Importance**: Vital for ranking in the Local 3-Pack for queries like "Banquet hall near me" and "Wedding venue in Pimpri Chinchwad".
 - **Action Items**:
   1. **Claim / Verify Listing**: Claim "Hriday Banquet Hall" on [Google Business Profile](https://business.google.com/).
   2. **NAP Consistency (Name, Address, Phone)**: Ensure the business name, address, and telephone number match *exactly* with what is listed on the website:
@@ -96,9 +96,9 @@ This checklist provides step-by-step instructions for completing the remaining o
 - **Status**: 📋 *Recommended Future Task*
 - **Importance**: High-authority citations reinforce geographic relevance and domain authority.
 - **Target Directories**:
-  1. **WedMeGood** (Create verified venue profile under Kolkata banquets).
+  1. **WedMeGood** (Create verified venue profile under Pimpri Chinchwad banquets).
   2. **WeddingWire India** (List venue capacity, amenities, and photo gallery).
-  3. **JustDial Kolkata** (Complete business listing with website link).
+  3. **JustDial Pimpri Chinchwad** (Complete business listing with website link).
   4. **Sulekha Events** (Banquet category listing).
   5. **IndiaMart** (Event hosting listing).
 

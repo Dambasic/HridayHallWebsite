@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",
-    "@supabase/supabase-js": "^2.48.0",
+    "@supabase/supabase-js": "^2.119.2",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",

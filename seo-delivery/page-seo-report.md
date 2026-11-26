@@ -26,9 +26,9 @@ This document provides a page-by-page audit and optimization log across all publ
 ### Page 1: Homepage (`/`)
 
 - **Page URL**: `https://hridaybanquethall.com/`
-- **Primary Keyword**: `Hriday Banquet Hall`, `Banquet hall in Kolkata`
-- **Optimized SEO Title**: `Hriday Banquet Hall – Luxury Weddings & Celebrations Venue in Kolkata` (68 chars)
-- **Optimized Meta Description**: `Celebrate your special moments at Hriday Banquet Hall. An elegant destination for weddings, receptions, engagements, corporate events, and milestone parties in Kolkata.` (166 chars)
+- **Primary Keyword**: `Hriday Banquet Hall`, `Banquet hall in Pimpri Chinchwad`
+- **Optimized SEO Title**: `Hriday Banquet Hall – Luxury Weddings & Celebrations Venue in Pimpri Chinchwad` (68 chars)
+- **Optimized Meta Description**: `Celebrate your special moments at Hriday Banquet Hall. An elegant destination for weddings, receptions, engagements, corporate events, and milestone parties in Pimpri Chinchwad.` (166 chars)
 - **Canonical URL**: `https://hridaybanquethall.com/`
 - **Heading Hierarchy**:
   - `H1`: Celebrate Your Special Moments at Hriday Banquet Hall *(Hero Section)*
@@ -47,7 +47,7 @@ This document provides a page-by-page audit and optimization log across all publ
   - Service card click-throughs directly to `/services/:slug`.
   - Footer navigational anchor links.
 - **Open Graph / Twitter Cards**:
-  - `og:title`: Hriday Banquet Hall – Luxury Weddings & Celebrations Venue in Kolkata
+  - `og:title`: Hriday Banquet Hall – Luxury Weddings & Celebrations Venue in Pimpri Chinchwad
   - `og:image`: `https://hridaybanquethall.com/hriday-logo.png` (1200x630)
   - `og:type`: `website`
 
@@ -56,9 +56,9 @@ This document provides a page-by-page audit and optimization log across all publ
 ### Page 2: Wedding Functions (`/services/wedding-functions`)
 
 - **Page URL**: `https://hridaybanquethall.com/services/wedding-functions`
-- **Primary Keyword**: `Wedding banquet hall in Kolkata`, `Marriage reception hall Kolkata`
-- **Optimized SEO Title**: `Wedding Functions in Kolkata | Hriday Banquet Hall` (49 chars)
-- **Optimized Meta Description**: `Host your royal wedding ceremony and marriage reception at Hriday Banquet Hall in Kolkata. Grand stage decor, lavish dining layouts, and seamless hospitality.` (158 chars)
+- **Primary Keyword**: `Wedding banquet hall in Pimpri Chinchwad`, `Marriage reception hall Pimpri Chinchwad`
+- **Optimized SEO Title**: `Wedding Functions in Pimpri Chinchwad | Hriday Banquet Hall` (49 chars)
+- **Optimized Meta Description**: `Host your royal wedding ceremony and marriage reception at Hriday Banquet Hall in Pimpri Chinchwad. Grand stage decor, lavish dining layouts, and seamless hospitality.` (158 chars)
 - **Canonical URL**: `https://hridaybanquethall.com/services/wedding-functions`
 - **Heading Hierarchy**:
   - `H1`: Wedding Functions *(Hero Section)*
@@ -79,9 +79,9 @@ This document provides a page-by-page audit and optimization log across all publ
 ### Page 3: Engagement Ceremonies (`/services/engagement-ceremonies`)
 
 - **Page URL**: `https://hridaybanquethall.com/services/engagement-ceremonies`
-- **Primary Keyword**: `Engagement ceremony venue Kolkata`, `Banquet hall for ring ceremony`
-- **Optimized SEO Title**: `Engagement Ceremonies in Kolkata | Hriday Banquet Hall` (53 chars)
-- **Optimized Meta Description**: `Celebrate your engagement and ring ceremony at Hriday Banquet Hall, Kolkata. Intimate floral backdrops, romantic stage lighting, and warm family hospitality.` (157 chars)
+- **Primary Keyword**: `Engagement ceremony venue Pimpri Chinchwad`, `Banquet hall for ring ceremony`
+- **Optimized SEO Title**: `Engagement Ceremonies in Pimpri Chinchwad | Hriday Banquet Hall` (53 chars)
+- **Optimized Meta Description**: `Celebrate your engagement and ring ceremony at Hriday Banquet Hall, Pimpri Chinchwad. Intimate floral backdrops, romantic stage lighting, and warm family hospitality.` (157 chars)
 - **Canonical URL**: `https://hridaybanquethall.com/services/engagement-ceremonies`
 - **Heading Hierarchy**:
   - `H1`: Engagement Ceremonies *(Hero Section)*
@@ -98,9 +98,9 @@ This document provides a page-by-page audit and optimization log across all publ
 ### Page 4: Birthday Celebrations (`/services/birthday-celebrations`)
 
 - **Page URL**: `https://hridaybanquethall.com/services/birthday-celebrations`
-- **Primary Keyword**: `Birthday party banquet hall`, `Birthday celebration hall Kolkata`
-- **Optimized SEO Title**: `Birthday Celebrations in Kolkata | Hriday Banquet Hall` (52 chars)
-- **Optimized Meta Description**: `Turn milestone birthdays into festive gatherings with custom theme decorations, dynamic lighting, and celebratory vibes at Hriday Banquet Hall in Kolkata.` (154 chars)
+- **Primary Keyword**: `Birthday party banquet hall`, `Birthday celebration hall Pimpri Chinchwad`
+- **Optimized SEO Title**: `Birthday Celebrations in Pimpri Chinchwad | Hriday Banquet Hall` (52 chars)
+- **Optimized Meta Description**: `Turn milestone birthdays into festive gatherings with custom theme decorations, dynamic lighting, and celebratory vibes at Hriday Banquet Hall in Pimpri Chinchwad.` (154 chars)
 - **Canonical URL**: `https://hridaybanquethall.com/services/birthday-celebrations`
 - **Heading Hierarchy**:
   - `H1`: Birthday Celebrations *(Hero Section)*
@@ -116,8 +116,8 @@ This document provides a page-by-page audit and optimization log across all publ
 ### Page 5: Anniversary Celebrations (`/services/anniversary-celebrations`)
 
 - **Page URL**: `https://hridaybanquethall.com/services/anniversary-celebrations`
-- **Primary Keyword**: `Anniversary party venue Kolkata`, `Silver jubilee celebration hall`
-- **Optimized SEO Title**: `Anniversary Celebrations in Kolkata | Hriday Banquet Hall` (55 chars)
+- **Primary Keyword**: `Anniversary party venue Pimpri Chinchwad`, `Silver jubilee celebration hall`
+- **Optimized SEO Title**: `Anniversary Celebrations in Pimpri Chinchwad | Hriday Banquet Hall` (55 chars)
 - **Optimized Meta Description**: `Honor cherished years of togetherness with romantic candlelit tables, crystal chandeliers, royal stage decor, and gourmet catering at Hriday Banquet Hall.` (155 chars)
 - **Canonical URL**: `https://hridaybanquethall.com/services/anniversary-celebrations`
 - **Heading Hierarchy**:
@@ -133,8 +133,8 @@ This document provides a page-by-page audit and optimization log across all publ
 ### Page 6: Corporate Events (`/services/corporate-events`)
 
 - **Page URL**: `https://hridaybanquethall.com/services/corporate-events`
-- **Primary Keyword**: `Corporate event banquet hall Kolkata`, `Conference hall corporate meet`
-- **Optimized SEO Title**: `Corporate Events in Kolkata | Hriday Banquet Hall` (47 chars)
+- **Primary Keyword**: `Corporate event banquet hall Pimpri Chinchwad`, `Conference hall corporate meet`
+- **Optimized SEO Title**: `Corporate Events in Pimpri Chinchwad | Hriday Banquet Hall` (47 chars)
 - **Optimized Meta Description**: `Host executive meets, conferences, corporate dinners, and award nights with professional excellence, AV equipment, and bespoke catering at Hriday Banquet Hall.` (160 chars)
 - **Canonical URL**: `https://hridaybanquethall.com/services/corporate-events`
 - **Heading Hierarchy**:
@@ -150,8 +150,8 @@ This document provides a page-by-page audit and optimization log across all publ
 ### Page 7: Family Gatherings (`/services/family-gatherings`)
 
 - **Page URL**: `https://hridaybanquethall.com/services/family-gatherings`
-- **Primary Keyword**: `Banquet hall for family gatherings`, `Family reunion hall Kolkata`
-- **Optimized SEO Title**: `Family Gatherings in Kolkata | Hriday Banquet Hall` (48 chars)
+- **Primary Keyword**: `Banquet hall for family gatherings`, `Family reunion hall Pimpri Chinchwad`
+- **Optimized SEO Title**: `Family Gatherings in Pimpri Chinchwad | Hriday Banquet Hall` (48 chars)
 - **Optimized Meta Description**: `Spacious and welcoming banquet arrangements where large families can reunite, celebrate, and bond comfortably with authentic dining at Hriday Banquet Hall.` (154 chars)
 - **Canonical URL**: `https://hridaybanquethall.com/services/family-gatherings`
 - **Heading Hierarchy**:
@@ -167,8 +167,8 @@ This document provides a page-by-page audit and optimization log across all publ
 
 - **Page URL**: `https://hridaybanquethall.com/services/private-celebrations`
 - **Primary Keyword**: `Private party venue for celebrations`, `Exclusive banquet booking`
-- **Optimized SEO Title**: `Private Celebrations in Kolkata | Hriday Banquet Hall` (51 chars)
-- **Optimized Meta Description**: `Exclusive private booking arrangements ensuring complete privacy, personalized decor, and dedicated banquet attention at Hriday Banquet Hall in Kolkata.` (154 chars)
+- **Optimized SEO Title**: `Private Celebrations in Pimpri Chinchwad | Hriday Banquet Hall` (51 chars)
+- **Optimized Meta Description**: `Exclusive private booking arrangements ensuring complete privacy, personalized decor, and dedicated banquet attention at Hriday Banquet Hall in Pimpri Chinchwad.` (154 chars)
 - **Canonical URL**: `https://hridaybanquethall.com/services/private-celebrations`
 - **Heading Hierarchy**:
   - `H1`: Private Celebrations *(Hero Section)*
@@ -180,9 +180,9 @@ This document provides a page-by-page audit and optimization log across all publ
 ### Page 9: Event Arrangements (`/services/event-arrangements`)
 
 - **Page URL**: `https://hridaybanquethall.com/services/event-arrangements`
-- **Primary Keyword**: `Banquet hall with decoration and catering support`, `Event arrangements Kolkata`
-- **Optimized SEO Title**: `Event Arrangements in Kolkata | Hriday Banquet Hall` (49 chars)
-- **Optimized Meta Description**: `Complete turnkey banquet coordination including stage lighting, audio setups, floral styling, and welcoming guest reception at Hriday Banquet Hall, Kolkata.` (156 chars)
+- **Primary Keyword**: `Banquet hall with decoration and catering support`, `Event arrangements Pimpri Chinchwad`
+- **Optimized SEO Title**: `Event Arrangements in Pimpri Chinchwad | Hriday Banquet Hall` (49 chars)
+- **Optimized Meta Description**: `Complete turnkey banquet coordination including stage lighting, audio setups, floral styling, and welcoming guest reception at Hriday Banquet Hall, Pimpri Chinchwad.` (156 chars)
 - **Canonical URL**: `https://hridaybanquethall.com/services/event-arrangements`
 - **Heading Hierarchy**:
   - `H1`: Event Arrangements *(Hero Section)*

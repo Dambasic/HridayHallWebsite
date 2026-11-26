@@ -160,10 +160,10 @@ Thank you!`;
   const galleryItems: ServiceGalleryImage[] = service.gallery || [];
   const instagramItems: ServiceInstagramMedia[] = service.instagram_media || [];
 
-  const pageTitle = `${service.title} in Kolkata | Hriday Banquet Hall`;
+  const pageTitle = `${service.title} in Pimpri Chinchwad | Hriday Banquet Hall`;
   const pageDescription =
     service.short_description ||
-    `Host your ${service.title} at Hriday Banquet Hall in Kolkata. Elegant banquet spaces, royal stage decor, delicious catering, and dedicated event support.`;
+    `Host your ${service.title} at Hriday Banquet Hall in Pimpri Chinchwad. Elegant banquet spaces, royal stage decor, delicious catering, and dedicated event support.`;
   const schema = getServicePageSchema(service, content);
 
   return (
@@ -171,7 +171,7 @@ Thank you!`;
       <SEOHead
         title={pageTitle}
         description={pageDescription}
-        keywords={`${service.title}, ${service.title} in Kolkata, banquet hall for ${service.title.toLowerCase()}, Hriday Banquet Hall events`}
+        keywords={`${service.title}, ${service.title} in Pimpri Chinchwad, banquet hall for ${service.title.toLowerCase()}, Hriday Banquet Hall events`}
         canonicalUrl={`https://hridaybanquethall.com/services/${service.slug}`}
         ogImage={service.image_url}
         ogType="article"
