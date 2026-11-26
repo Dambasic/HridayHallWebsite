@@ -1,5 +1,5 @@
 import React from 'react';
-import { Instagram, Facebook, MessageCircle, Lock, MapPin, Phone, Mail, ExternalLink } from 'lucide-react';
+import { Instagram, Facebook, MessageCircle, Lock, MapPin, Phone, Mail } from 'lucide-react';
 import { useContent } from '../context/ContentContext';
 import { Link, useLocation } from 'react-router-dom';
 import { resolveInstagramUrl } from '../utils/socialLinks';
@@ -205,22 +205,6 @@ export const Footer: React.FC<FooterProps> = ({ onOpenWhatsAppModal }) => {
               <span className="font-semibold text-gold-300 hover:text-gold-200 transition cursor-default">
                 {agencyName}
               </span>
-            </span>
-
-            <span className="hidden sm:inline text-gold-500/40" aria-hidden="true">&bull;</span>
-
-            <span className="inline-flex items-center justify-center gap-2">
-              <span>Crafted &amp; Powered by</span>
-              <a
-                href="https://www.pehchaandigital.online/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#650A25] hover:bg-[#8B1538] text-gold-200 hover:text-white border border-gold-400/70 font-bold text-xs tracking-wide transition-all shadow-sm hover:shadow-md active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-300"
-                aria-label="Visit Pehchaan Digital website"
-              >
-                <span>Pehchaan Digital</span>
-                <ExternalLink className="w-3 h-3 text-gold-300" />
-              </a>
             </span>
           </div>
         </div>

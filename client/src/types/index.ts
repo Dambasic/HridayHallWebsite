@@ -21,6 +21,7 @@ export interface WebsiteSettings {
   hero_subtitle: string;
   hero_trust_text: string;
   hero_bg_image: string;
+  hero_bg_opacity?: number;
   section_visibility: SectionVisibility;
   updated_at: string;
 }

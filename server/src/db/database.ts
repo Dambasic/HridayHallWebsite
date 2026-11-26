@@ -258,6 +258,7 @@ export async function initDatabase() {
       hero_subtitle TEXT NOT NULL,
       hero_trust_text TEXT NOT NULL,
       hero_bg_image TEXT NOT NULL,
+      hero_bg_opacity INTEGER NOT NULL DEFAULT 45,
       section_visibility TEXT NOT NULL DEFAULT '{"hero":true,"featured_celebrations":true,"about":true,"services":true,"gallery":true,"instagram":true,"sunshine":true,"contact":true}',
       updated_at TEXT NOT NULL
     );
@@ -451,6 +452,12 @@ export async function initDatabase() {
     const instaColNames = instaMediaCols.map((c) => c.name);
     if (!instaColNames.includes('cover_image')) {
       await sqliteDb.exec("ALTER TABLE service_instagram_media ADD COLUMN cover_image TEXT NOT NULL DEFAULT ''");
+    }
+
+    const settingsCols = (await sqliteDb.prepare('PRAGMA table_info(website_settings)').all()) as any[];
+    const settingsColNames = settingsCols.map((c) => c.name);
+    if (!settingsColNames.includes('hero_bg_opacity')) {
+      await sqliteDb.exec('ALTER TABLE website_settings ADD COLUMN hero_bg_opacity INTEGER NOT NULL DEFAULT 45');
     }
   } catch (err) {
     console.warn('Column check error:', err);

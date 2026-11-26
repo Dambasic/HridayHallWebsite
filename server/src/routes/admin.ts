@@ -266,6 +266,10 @@ router.get('/settings', async (_req: AuthenticatedRequest, res: Response) => {
 
 router.put('/settings', async (req: AuthenticatedRequest, res: Response) => {
   try {
+    const existing = (await sqliteDb
+      .prepare("SELECT * FROM website_settings WHERE id = 'settings_default'")
+      .get()) as any;
+
     const {
       site_title,
       tagline,
@@ -277,11 +281,20 @@ router.put('/settings', async (req: AuthenticatedRequest, res: Response) => {
       hero_subtitle,
       hero_trust_text,
       hero_bg_image,
+      hero_bg_opacity,
       section_visibility,
     } = req.body;
 
     const now = new Date().toISOString();
-    const visStr = typeof section_visibility === 'object' ? JSON.stringify(section_visibility) : section_visibility;
+    const visStr =
+      section_visibility !== undefined
+        ? typeof section_visibility === 'object'
+          ? JSON.stringify(section_visibility)
+          : section_visibility
+        : existing?.section_visibility || '{}';
+
+    const rawOpacity = hero_bg_opacity ?? existing?.hero_bg_opacity ?? 45;
+    const clampedOpacity = Math.min(100, Math.max(0, Number.isFinite(Number(rawOpacity)) ? Math.round(Number(rawOpacity)) : 45));
 
     await sqliteDb.prepare(`
       UPDATE website_settings SET
@@ -295,21 +308,23 @@ router.put('/settings', async (req: AuthenticatedRequest, res: Response) => {
         hero_subtitle = ?,
         hero_trust_text = ?,
         hero_bg_image = ?,
+        hero_bg_opacity = ?,
         section_visibility = ?,
         updated_at = ?
       WHERE id = 'settings_default'
     `).run(
-      site_title || 'Hriday Banquet Hall',
-      tagline || '',
-      logo_url || '',
-      favicon_url || '',
-      seo_title || '',
-      seo_description || '',
-      hero_heading || '',
-      hero_subtitle || '',
-      hero_trust_text || '',
-      hero_bg_image || '',
-      visStr || '{}',
+      site_title ?? existing?.site_title ?? 'Hriday Banquet Hall',
+      tagline ?? existing?.tagline ?? '',
+      logo_url ?? existing?.logo_url ?? '',
+      favicon_url ?? existing?.favicon_url ?? '',
+      seo_title ?? existing?.seo_title ?? '',
+      seo_description ?? existing?.seo_description ?? '',
+      hero_heading ?? existing?.hero_heading ?? '',
+      hero_subtitle ?? existing?.hero_subtitle ?? '',
+      hero_trust_text ?? existing?.hero_trust_text ?? '',
+      hero_bg_image ?? existing?.hero_bg_image ?? '',
+      clampedOpacity,
+      visStr,
       now
     );
 

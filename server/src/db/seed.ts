@@ -32,20 +32,21 @@ export async function seedDatabase() {
   await sqliteDb.prepare(`
     INSERT INTO website_settings (
       id, site_title, tagline, logo_url, favicon_url, seo_title, seo_description,
-      hero_heading, hero_subtitle, hero_trust_text, hero_bg_image, section_visibility, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      hero_heading, hero_subtitle, hero_trust_text, hero_bg_image, hero_bg_opacity, section_visibility, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     'settings_default',
     'Hriday Banquet Hall',
     'Your Celebrations, Our Commitment.',
     '',
     '/favicon.svg',
-    'Hriday Banquet Hall – Luxury Weddings & Celebrations Venue',
-    'Celebrate your special moments at Hriday Banquet Hall. An elegant destination for weddings, celebrations, corporate gatherings, and unforgettable memories.',
+    'Hriday Banquet Hall – Luxury Weddings & Celebrations Venue in Pimpri Chinchwad',
+    'Celebrate your special moments at Hriday Banquet Hall in Pimpri Chinchwad. An elegant destination for weddings, celebrations, corporate gatherings, and unforgettable memories.',
     'Celebrate Your Special Moments at Hriday Banquet Hall',
     'An elegant destination for weddings, celebrations, corporate gatherings, and unforgettable memories.',
     'Your Celebrations, Our Commitment.',
     'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=2000&q=85',
+    45,
     JSON.stringify({
       hero: true,
       about: true,

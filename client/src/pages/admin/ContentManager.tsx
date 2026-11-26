@@ -17,11 +17,13 @@ export const ContentManager: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState('');
 
   // Hero state
+  const [fullSettings, setFullSettings] = useState<any>(null);
   const [heroData, setHeroData] = useState({
     hero_heading: '',
     hero_subtitle: '',
     hero_trust_text: '',
     hero_bg_image: '',
+    hero_bg_opacity: 45,
   });
 
   // About state
@@ -50,11 +52,13 @@ export const ContentManager: React.FC = () => {
         ]);
 
         if (settings) {
+          setFullSettings(settings);
           setHeroData({
             hero_heading: settings.hero_heading || '',
             hero_subtitle: settings.hero_subtitle || '',
             hero_trust_text: settings.hero_trust_text || '',
             hero_bg_image: settings.hero_bg_image || '',
+            hero_bg_opacity: settings.hero_bg_opacity ?? 45,
           });
         }
 
@@ -111,7 +115,7 @@ export const ContentManager: React.FC = () => {
   const saveHero = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await updateAdminSettings(heroData);
+      await updateAdminSettings({ ...(fullSettings || {}), ...heroData });
       setToastMsg('Hero Section content saved successfully!');
       await refreshContent();
       setTimeout(() => setToastMsg(''), 4000);
@@ -278,6 +282,38 @@ export const ContentManager: React.FC = () => {
                     onChange={(e) => setHeroData({ ...heroData, hero_bg_image: e.target.value })}
                     className="w-full px-3.5 py-2.5 bg-white border border-charcoal-200 rounded-xl text-xs text-charcoal-900"
                   />
+
+                  {/* Color Overlay Opacity Slider */}
+                  <div className="mt-4 p-4 rounded-2xl bg-ivory-50 border border-gold-200/80 space-y-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <label
+                        htmlFor="heroBgOpacitySlider"
+                        className="text-xs font-semibold uppercase tracking-wider text-charcoal-800"
+                      >
+                        Background Color Overlay Opacity
+                      </label>
+                      <span className="px-2.5 py-0.5 rounded-full bg-maroon-900 text-gold-200 text-xs font-bold tabular-nums">
+                        {heroData.hero_bg_opacity}%
+                      </span>
+                    </div>
+                    <input
+                      id="heroBgOpacitySlider"
+                      type="range"
+                      min={0}
+                      max={100}
+                      step={1}
+                      value={heroData.hero_bg_opacity}
+                      onChange={(e) =>
+                        setHeroData({ ...heroData, hero_bg_opacity: Number(e.target.value) })
+                      }
+                      className="w-full accent-maroon-800 cursor-pointer"
+                    />
+                    <div className="flex items-center justify-between text-[11px] text-charcoal-600 font-medium">
+                      <span>0% (Clear Image)</span>
+                      <span>45% (Balanced)</span>
+                      <span>100% (Dark Overlay)</span>
+                    </div>
+                  </div>
                 </div>
 
                 {heroData.hero_bg_image && (
@@ -287,8 +323,18 @@ export const ContentManager: React.FC = () => {
                       alt="Hero Background Preview"
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-charcoal-950/40 flex items-center justify-center text-white text-xs font-medium">
-                      Live Hero Preview
+                    <div
+                      className="absolute inset-0 transition-opacity duration-150 pointer-events-none"
+                      style={{ opacity: heroData.hero_bg_opacity / 100 }}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#120B0F] via-[#26000D]/80 to-[#180007]/85" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-[#120B0F]/85 via-[#180007]/55 to-[#26000D]/55" />
+                    </div>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-xs font-medium drop-shadow">
+                      <span>Live Hero Preview</span>
+                      <span className="text-[11px] text-gold-200 mt-0.5">
+                        Overlay Opacity: {heroData.hero_bg_opacity}%
+                      </span>
                     </div>
                   </div>
                 )}

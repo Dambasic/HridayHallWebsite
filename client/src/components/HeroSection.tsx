@@ -15,6 +15,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenWhatsAppModal })
   const bgImage =
     settings?.hero_bg_image ||
     'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=2000&q=85';
+  const overlayOpacity = Math.min(100, Math.max(0, settings?.hero_bg_opacity ?? 45)) / 100;
 
   const heading = settings?.hero_heading || 'Celebrate Your Special Moments at Hriday Banquet Hall';
   const subtitle =
@@ -42,9 +43,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenWhatsAppModal })
           alt="Hriday Banquet Hall Luxury Interior"
           className="w-full h-full object-cover object-center scale-105 transition-transform duration-1000 ease-out"
         />
-        {/* Deep luxury burgundy and charcoal gradients for high-contrast readable typography */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#120B0F] via-[#26000D]/75 to-[#180007]/85" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#120B0F]/85 via-[#180007]/55 to-[#26000D]/55" />
+        {/* Deep luxury burgundy and charcoal gradients with admin-adjustable opacity */}
+        <div
+          className="absolute inset-0 transition-opacity duration-200 pointer-events-none"
+          style={{ opacity: overlayOpacity }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-t from-[#120B0F] via-[#26000D]/80 to-[#180007]/85" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#120B0F]/85 via-[#180007]/55 to-[#26000D]/55" />
+        </div>
       </div>
 
       {/* Decorative Gold Ambient Lines */}
